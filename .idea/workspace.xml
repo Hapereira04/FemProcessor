@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Criacao do Projeto">
-      <change afterPath="$PROJECT_DIR$/io_utils.py" afterDir="false" />
-    </list>
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -75,7 +76,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783283360448</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet).">
+      <option name="closed" value="true" />
+      <created>1783283777062</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1783283777062</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -103,6 +112,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Criacao do Projeto" />
-    <option name="LAST_COMMIT_MESSAGE" value="Criacao do Projeto" />
+    <MESSAGE value="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
+    <option name="LAST_COMMIT_MESSAGE" value="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
   </component>
 </project>

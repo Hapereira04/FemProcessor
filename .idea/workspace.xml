@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres).">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/io_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/io_utils.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -84,7 +87,23 @@
       <option name="project" value="LOCAL" />
       <updated>1783283777062</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="implementacao da leitura basica de coordenadas espaciais&#10;Atualizacao da funcao 'ler_nos_e_condicoes' para abrir o ficheiro txt, ignorar comentarios e extrair as colunas X, Y e Z para uma matriz NumPy.">
+      <option name="closed" value="true" />
+      <created>1783284146215</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1783284146215</updated>
+    </task>
+    <task id="LOCAL-00004" summary="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres).">
+      <option name="closed" value="true" />
+      <created>1783293267043</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1783293267043</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -113,6 +132,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Criacao do Projeto" />
     <MESSAGE value="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
-    <option name="LAST_COMMIT_MESSAGE" value="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
+    <MESSAGE value="implementacao da leitura basica de coordenadas espaciais&#10;Atualizacao da funcao 'ler_nos_e_condicoes' para abrir o ficheiro txt, ignorar comentarios e extrair as colunas X, Y e Z para uma matriz NumPy." />
+    <MESSAGE value="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres)." />
+    <option name="LAST_COMMIT_MESSAGE" value="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres)." />
   </component>
 </project>

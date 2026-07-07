@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM.">
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos.">
       <change beforePath="$PROJECT_DIR$/fem_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/fem_solver.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -47,14 +47,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Modulo__calculo__matematico"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Modulo__calculo__matematico&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -126,7 +126,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783357259604</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos.">
+      <option name="closed" value="true" />
+      <created>1783439323189</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1783439323189</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -160,6 +168,7 @@
     <MESSAGE value="integracao do modulo io_utils no script principal&#10;Atualizacao do main.py apos o merge da vertente de I/O. Substituicao da estrutura passiva pela invocacao real das funcoes de leitura. Adicionada validacao de caminhos de ficheiros (os.path) e impressao de estatisticas de controlo da malha na consola. O sistema orquestrador ja e capaz de extrair a geometria e aguarda a implementacao do motor de resolucao (fem_solver)." />
     <MESSAGE value="implementacao da formulacao matematica da matriz local 4x4&#10;Substituicao da estrutura vazia na funcao 'matriz_local_tetraedro' pelo algoritmo analitico de resolucao de um elemento finito. Implementado o calculo da matriz Jacobiana, das derivadas das funcoes de forma espaciais e a validacao geometrica do volume do tetraedro. A funcao ja devolve a matriz de condutividade local pronta a ser mapeada." />
     <MESSAGE value="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM." />
-    <option name="LAST_COMMIT_MESSAGE" value="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM." />
+    <MESSAGE value="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos." />
+    <option name="LAST_COMMIT_MESSAGE" value="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos." />
   </component>
 </project>

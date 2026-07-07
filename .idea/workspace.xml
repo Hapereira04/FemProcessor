@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="implementacao da formulacao matematica da matriz local 4x4&#10;Substituicao da estrutura vazia na funcao 'matriz_local_tetraedro' pelo algoritmo analitico de resolucao de um elemento finito. Implementado o calculo da matriz Jacobiana, das derivadas das funcoes de forma espaciais e a validacao geometrica do volume do tetraedro. A funcao ja devolve a matriz de condutividade local pronta a ser mapeada." />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM.">
+      <change beforePath="$PROJECT_DIR$/fem_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/fem_solver.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +118,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783353828776</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM.">
+      <option name="closed" value="true" />
+      <created>1783357259604</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1783357259604</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -149,6 +159,7 @@
     <MESSAGE value="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres)." />
     <MESSAGE value="integracao do modulo io_utils no script principal&#10;Atualizacao do main.py apos o merge da vertente de I/O. Substituicao da estrutura passiva pela invocacao real das funcoes de leitura. Adicionada validacao de caminhos de ficheiros (os.path) e impressao de estatisticas de controlo da malha na consola. O sistema orquestrador ja e capaz de extrair a geometria e aguarda a implementacao do motor de resolucao (fem_solver)." />
     <MESSAGE value="implementacao da formulacao matematica da matriz local 4x4&#10;Substituicao da estrutura vazia na funcao 'matriz_local_tetraedro' pelo algoritmo analitico de resolucao de um elemento finito. Implementado o calculo da matriz Jacobiana, das derivadas das funcoes de forma espaciais e a validacao geometrica do volume do tetraedro. A funcao ja devolve a matriz de condutividade local pronta a ser mapeada." />
-    <option name="LAST_COMMIT_MESSAGE" value="implementacao da formulacao matematica da matriz local 4x4&#10;Substituicao da estrutura vazia na funcao 'matriz_local_tetraedro' pelo algoritmo analitico de resolucao de um elemento finito. Implementado o calculo da matriz Jacobiana, das derivadas das funcoes de forma espaciais e a validacao geometrica do volume do tetraedro. A funcao ja devolve a matriz de condutividade local pronta a ser mapeada." />
+    <MESSAGE value="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM." />
+    <option name="LAST_COMMIT_MESSAGE" value="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM." />
   </component>
 </project>

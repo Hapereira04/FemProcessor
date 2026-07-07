@@ -2,7 +2,12 @@
 fem_solver.py
 =============
 Motor matemático do Metodo dos Elementos Finitos (MEF) 3D para tetraedros lineares.
+
+Este módulo contém o "cérebro" da simulação de condução elétrica. É responsável
+por toda a álgebra linear e física do problema: desde a formulação das matrizes
+de rigidez (condutividade) até à resolução de sistemas de equações de grande escala.
 """
+
 import scipy.sparse as sparse
 import scipy.sparse.linalg as spla
 import numpy as np
@@ -80,11 +85,9 @@ def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
 def aplicar_condicoes_eliminacao(Matriz_Rigidez_Global, Condicoes_Fronteira):
     """
     Aplica as condições de contorno de Dirichlet e resolve o sistema de equações.
-    Também calcula a resistência equivalente global do domínio.
     """
     Numero_Nos = Matriz_Rigidez_Global.shape[0]
 
-    # 1. Identificar nós fixos (fronteira) e nós desconhecidos (livres)
     nos_fixos = list(Condicoes_Fronteira.keys())
     mascara_desconhecidos = np.ones(Numero_Nos, dtype=bool)
     mascara_desconhecidos[nos_fixos] = False
@@ -92,26 +95,19 @@ def aplicar_condicoes_eliminacao(Matriz_Rigidez_Global, Condicoes_Fronteira):
 
     Potenciais_Fixos = np.array([Condicoes_Fronteira[no] for no in nos_fixos])
 
-    # 2. Extração de submatrizes esparsas (Particionamento)
     K_dd = Matriz_Rigidez_Global[nos_desconhecidos, :][:, nos_desconhecidos]
     K_df = Matriz_Rigidez_Global[nos_desconhecidos, :][:, nos_fixos]
 
-    # 3. Construção do vetor de forças/cargas (lado direito da equação)
     Vetor_Cargas = -K_df @ Potenciais_Fixos
-
-    # 4. Resolver o sistema linear esparso principal
     Potenciais_Desconhecidos = spla.spsolve(K_dd, Vetor_Cargas)
 
-    # 5. Montar a matriz final de resultados (juntando os calculados com os fixos)
     Vetor_Potenciais_Final = np.zeros(Numero_Nos)
     Vetor_Potenciais_Final[nos_desconhecidos] = Potenciais_Desconhecidos
     Vetor_Potenciais_Final[nos_fixos] = Potenciais_Fixos
 
-    # 6. Cálculo Dinâmico da Resistência Elétrica Equivalente
     valores_voltagem = list(Condicoes_Fronteira.values())
     if len(valores_voltagem) > 0:
         Diferenca_Tensao = max(valores_voltagem) - min(valores_voltagem)
-        # Potência Dissipada (Energia) = V * K * V
         Potencia_Dissipada = Vetor_Potenciais_Final @ (Matriz_Rigidez_Global @ Vetor_Potenciais_Final)
 
         if Diferenca_Tensao > 0 and abs(Potencia_Dissipada) > 1e-12:
@@ -127,5 +123,39 @@ def aplicar_condicoes_eliminacao(Matriz_Rigidez_Global, Condicoes_Fronteira):
 def gradiente_por_elemento(Matriz_Nos, Matriz_Elementos, Vetor_Potenciais_Final):
     """
     Calcula o gradiente do potencial elétrico (Campo Elétrico) no interior de cada tetraedro.
+
+    :param Matriz_Nos: Array NumPy (N x 3) contendo as coordenadas espaciais.
+    :param Matriz_Elementos: Array NumPy (M x 4) contendo os índices da malha.
+    :param Vetor_Potenciais_Final: Array 1D com os potenciais (Volts) calculados.
+
+    :return: Matriz (M x 3) com o vetor 3D do Campo Elétrico (Ex, Ey, Ez) por elemento.
     """
-    pass
+    Numero_Elementos = len(Matriz_Elementos)
+    Matriz_Campos_Eletricos = np.zeros((Numero_Elementos, 3))
+
+    for index_elemento, nos_do_tetraedro in enumerate(Matriz_Elementos):
+        Coordenadas_Elemento = Matriz_Nos[nos_do_tetraedro]
+
+        # Matriz Jacobiana sem a transposta (.T), alinhada com a formulação local
+        Matriz_Jacobiana = np.array([
+            Coordenadas_Elemento[1] - Coordenadas_Elemento[0],
+            Coordenadas_Elemento[2] - Coordenadas_Elemento[0],
+            Coordenadas_Elemento[3] - Coordenadas_Elemento[0]
+        ]).T
+
+        Inversa_Jacobiana = np.linalg.inv(Matriz_Jacobiana)
+
+        Tabela_Gradientes = np.zeros((4, 3))
+        Tabela_Gradientes[1:] = Inversa_Jacobiana
+        Tabela_Gradientes[0] = -np.sum(Inversa_Jacobiana, axis=0)
+
+        Voltagens_Locais = Vetor_Potenciais_Final[nos_do_tetraedro]
+
+        Gradiente_Matematico = np.zeros(3)
+        for no_local in range(4):
+            Gradiente_Matematico += Voltagens_Locais[no_local] * Tabela_Gradientes[no_local]
+
+        # O Campo Elétrico aponta na direção descendente do potencial (sinal negativo)
+        Matriz_Campos_Eletricos[index_elemento] = -Gradiente_Matematico
+
+    return Matriz_Campos_Eletricos

@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos.">
-      <change beforePath="$PROJECT_DIR$/fem_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/fem_solver.py" afterDir="false" />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="integracao do motor matematico fem_solver no orquestrador&#10;Substituicao do placeholder no main.py pela invocacao real das funcoes do modulo fem_solver. O script orquestra agora de forma encadeada a inversao de resistividades, a montagem da matriz global, a resolucao do sistema de equacoes e o calculo do campo eletrico (gradiente). Adicionamento de mais comentarios ao longo do codigo a fim de facilitar a compreensao do fluxo de trabalho. Incluida tambem a impressao de um relatorio resumo na consola com a resistencia e corrente estimadas.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +22,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="Modulo_calculo_matematico" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -47,14 +47,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Modulo__calculo__matematico&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

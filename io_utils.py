@@ -89,4 +89,86 @@ def ler_elementos_finais(caminho_ficheiro):
                     valor_condutividade = valores_linha[4]
                     Lista_Condutividades.append(valor_condutividade)
 
-    return np.array(Matriz_Elementos, dtype=int), np.array(Lista_Condutividades)
+    elementos = np.array(Matriz_Elementos, dtype=int)
+    condutividades = np.array(Lista_Condutividades, dtype=float)
+
+    if len(elementos) == 0:
+        raise ValueError("O ficheiro de elementos nao contem tetraedros validos.")
+    if np.any(condutividades <= 0):
+        raise ValueError("A condutividade de cada elemento deve ser positiva.")
+
+    return elementos, condutividades
+
+
+def reparar_malha_desconectada(Matriz_Nos, Matriz_Elementos, Condicoes_Fronteira):
+    """
+        Cura a malha fundindo nós duplicados (coordenadas praticamente iguais) que
+        foram gerados como entidades separadas, atualizando a conectividade dos
+        elementos e as condições de fronteira para os novos índices.
+
+        O algoritmo:
+            1. Arredonda as coordenadas dos nós para uma precisão de 5 casas decimais.
+            2. Usa `np.unique` para identificar nós únicos (mesmo ponto físico).
+            3. Cria uma nova matriz de nós apenas com os nós únicos.
+            4. Reconstrói os elementos mapeando os índices antigos para os novos.
+            5. Reconstrói as condições de fronteira, resolvendo conflitos quando dois
+               nós com condições diferentes se fundem (prevalece o potencial mais alto).
+
+        :param Matriz_Nos: np.ndarray de forma (N, 3) com as coordenadas (x, y, z) de cada nó.
+        :param Matriz_Elementos: np.ndarray de forma (M, 4) com os índices dos 4 nós que
+                                 compõem cada tetraedro (baseados na matriz original).
+        :param Condicoes_Fronteira: dict[int, float] que mapeia o índice de um nó (original)
+                                    ao potencial fixo (em V) nesse nó.
+        :return: Uma tupla (Matriz_Nos_Nova, Matriz_Elementos_Nova, Condicoes_Fronteira_Nova)
+                 onde:
+                    - Matriz_Nos_Nova: np.ndarray (N', 3) com os nós únicos.
+                    - Matriz_Elementos_Nova: np.ndarray (M, 4) com os índices atualizados.
+                    - Condicoes_Fronteira_Nova: dict[int, float] com as condições atualizadas.
+                 N' <= N, podendo ser menor se houverem duplicados.
+        """
+
+    import numpy as np
+    print("\n[Diagnóstico] A procurar falhas na malha (Mesh Welding)...")
+
+    # 1. Arredondar coordenadas para fundir pontos colados (precisão 5 casas decimais)
+    #    Isto evita que diferenças mínimas (ex: 1e-8) sejam consideradas nós distintos.
+    nos_arredondados = np.round(Matriz_Nos, decimals=5)
+
+    # 2. O NumPy descobre quais nós são o mesmo ponto físico
+    #    - axis=0: compara linhas inteiras (coordenadas x,y,z)
+    #    - return_index: devolve os índices da primeira ocorrência de cada nó único
+    #    - return_inverse: devolve um array que mapeia cada nó original para o índice do nó único
+    nos_unicos, indices_unicos, mapa_inverso = np.unique(
+        nos_arredondados, axis=0, return_index=True, return_inverse=True
+    )
+
+    # 3. Guardar apenas os nós reais (sem duplicados)
+    #    Usamos os índices originais para manter a precisão original (não arredondada)
+    Matriz_Nos_Nova = Matriz_Nos[indices_unicos]
+
+    # 4. Atualizar os tetraedros para apontarem para a nova rede colada
+    #    O mapa_inverso converte cada índice antigo para o índice do nó único correspondente
+    Matriz_Elementos_Nova = mapa_inverso[Matriz_Elementos]
+
+    # 5. Fundir as Condições de Fronteira (Bateria e Terra)
+    Condicoes_Fronteira_Nova = {}
+    for no_antigo, voltagem in Condicoes_Fronteira.items():
+        no_novo = mapa_inverso[no_antigo]
+
+        # Se dois nós se fundiram e um deles era a Vara (maior potencial), a Vara domina
+        # Isto resolve conflitos: se dois nós se fundem e ambos têm condições fixas,
+        # mantém-se o potencial mais elevado (geralmente o eléctrodo)
+        if no_novo in Condicoes_Fronteira_Nova:
+            if voltagem > Condicoes_Fronteira_Nova[no_novo]:
+                Condicoes_Fronteira_Nova[no_novo] = voltagem
+        else:
+            Condicoes_Fronteira_Nova[no_novo] = voltagem
+
+    # Estatística
+    nos_removidos = len(Matriz_Nos) - len(Matriz_Nos_Nova)
+    if nos_removidos > 0:
+        print(f"O programa juntou {nos_removidos} nós que estavam desconectados.")
+    else:
+        print("A malha já estava perfeitamente interligada.")
+
+    return Matriz_Nos_Nova, Matriz_Elementos_Nova, Condicoes_Fronteira_Nova

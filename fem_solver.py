@@ -52,11 +52,11 @@ def matriz_local_tetraedro(Coordenadas_Elemento, Condutividade=1.0):
     Coordenadas = Coordenadas_Elemento
 
     # 1. Matriz Jacobiana (Cálculo dos vetores direcionais a partir do Nó 0)
-    Matriz_Jacobiana = np.array([
+    Matriz_Jacobiana = np.column_stack((
         Coordenadas[1] - Coordenadas[0],
         Coordenadas[2] - Coordenadas[0],
         Coordenadas[3] - Coordenadas[0]
-    ])
+    ))
 
     Inversa_Jacobiana = np.linalg.inv(Matriz_Jacobiana)
 
@@ -105,20 +105,20 @@ def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
     :return: Matriz_Global_CSR, uma matriz esparsa do SciPy (formato CSR) de tamanho
              (N x N), pronta para receber as condições de fronteira e ser resolvida.
     """
+
     Numero_Nos = len(Matriz_Nos)
     Numero_Elementos = len(Matriz_Elementos)
 
-    # Cada tetraedro gera uma matriz 4x4, logo contribui com 16 valores
+    # Cada tetraedro contribui com uma matriz 4x4 (16 entradas)
     Total_Entradas = 16 * Numero_Elementos
 
-    # 1. Preparação dos "Livros de Registos" (Pré-alocação super rápida do NumPy)
-    lista_linhas = np.zeros(Total_Entradas, dtype=int)
-    lista_colunas = np.zeros(Total_Entradas, dtype=int)
-    lista_valores = np.zeros(Total_Entradas, dtype=float)
+    lista_linhas = np.zeros(Total_Entradas, dtype=np.int32)
+    lista_colunas = np.zeros(Total_Entradas, dtype=np.int32)
+    lista_valores = np.zeros(Total_Entradas, dtype=np.float64)
 
     contador = 0
 
-    # 2. Ciclo principal: Calcular e espalhar a matriz de cada tetraedro
+    # Montagem da matriz global
     for index_elemento, nos_do_tetraedro in enumerate(Matriz_Elementos):
 
         # Extrair as coordenadas e o material exclusivamente para este tetraedro
@@ -142,14 +142,30 @@ def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
 
                 contador += 1
 
-    # 4. Construção da Matriz Global Esparsa (A função COO soma nós repetidos automaticamente)
+    # Construção da matriz global
     Matriz_Global_COO = sparse.coo_matrix(
         (lista_valores, (lista_linhas, lista_colunas)),
         shape=(Numero_Nos, Numero_Nos)
     )
 
-    # Converter para o formato CSR que é o mais rápido para resolver equações
-    return Matriz_Global_COO.tocsr()
+    # COO -> CSR (o SciPy soma automaticamente contribuições repetidas)
+    Matriz_Global_CSR = Matriz_Global_COO.tocsr()
+    Matriz_Global_CSR.sum_duplicates()
+
+    # Diagnóstico da malha
+    nos_usados = np.unique(Matriz_Elementos.flatten())
+    nos_orfaos = np.setdiff1d(np.arange(Numero_Nos), nos_usados)
+
+    if len(nos_orfaos) > 0:
+        print(f"\n[ALERTA DE MALHA] Foram detetados {len(nos_orfaos)} nós órfãos.")
+
+        diagonal = Matriz_Global_CSR.diagonal().copy()
+        diagonal[nos_orfaos] = 1.0
+        Matriz_Global_CSR.setdiag(diagonal)
+    else:
+        print("\nNenhum nó órfão encontrado.")
+
+    return Matriz_Global_CSR
 
 
 def aplicar_condicoes_eliminacao(Matriz_Rigidez_Global, Condicoes_Fronteira):

@@ -35,9 +35,10 @@ def main():
     # 1. Leitura (Delega para io_utils)
     print("A ler geometria e materiais...")
     nos, condicoes = io_utils.ler_nos_e_condicoes(ficheiro_pontos)
-    elementos, resistividades = io_utils.ler_elementos_finais(ficheiro_elementos)
+    elementos, condutividades = io_utils.ler_elementos_finais(ficheiro_elementos)
 
-    condutividades = 1.0 / resistividades
+    # NOVO: Repara a malha estragada do Gmsh colando a vara ao solo!
+    nos, elementos, condicoes = io_utils.reparar_malha_desconectada(nos, elementos, condicoes)
 
     # 2. Resolução Matemática (Delega para fem_solver)
     print("A montar matriz global de rigidez...")
@@ -67,14 +68,10 @@ def main():
         if i not in condicoes:
             print(f"  Nó {i}: {pot:.2f} V")
 
-    # Calculas os potenciais e a resistência
-    u, R = fem_solver.aplicar_condicoes_eliminacao(S, condicoes)
-
     # 4. Renderização 3D (Delega para visualization)
     print("\nA inicializar motores gráficos...")
     visualization.visualizar_resultados_3d(nos, elementos, potenciais)
     visualization.visualizar_corte_interativo(nos, elementos, potenciais, gradientes, condicoes)
-
 
 if __name__ == "__main__":
     main()

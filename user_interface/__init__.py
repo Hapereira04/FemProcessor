@@ -8,10 +8,12 @@ from .result_dataclass import ResultadoMEF
 from .utils import formatar
 from .main_window import JanelaMEF, iniciar_interface
 from .worker import TrabalhadorCalculo
+from .viewer import Viewer3D
 
 __all__ = [
     "JanelaMEF",
     "ResultadoMEF",
     "formatar",
-    "TrabalhadorCalculo"
+    "TrabalhadorCalculo",
+    "Viewer3D"
 ]

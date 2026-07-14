@@ -29,6 +29,8 @@ from .result_dataclass import ResultadoMEF
 from .utils import formatar
 from .styles import STYLESHEET
 from .sidebar import Sidebar
+from .viewer import Viewer3D
+
 
 # Importações dos módulos de cálculo (serão usados mais tarde)
 # import fem_solver
@@ -66,10 +68,10 @@ class JanelaMEF(QMainWindow):
         # Aplicar estilo (a folha está em styles.py)
         self.setStyleSheet(STYLESHEET)
 
-        # Os métodos de construção da interface serão chamados nos próximos commits.
-        # self._criar_interface()
-        # self._criar_atalhos()
-        # self._criar_barra_exportacao()
+        self.setStyleSheet(STYLESHEET)
+        self._criar_interface()
+        self._criar_atalhos()
+        self._criar_barra_exportacao()
 
     def _criar_interface(self) -> None:
         """
@@ -102,8 +104,27 @@ class JanelaMEF(QMainWindow):
 
         layout_principal.addWidget(sidebar_frame)
 
-        # ---- Área de visualização (será preenchida no commit 4) ----
-        # Por agora, apenas um placeholder
+        # ---- Área de visualização ----
+        self.viewer = Viewer3D()
+        self.viewer.repor_camara_clicked.connect(self._repor_camara)
+        layout_principal.addWidget(self.viewer, 1)  # Expande para ocupar o resto
+
+        def _repor_camara(self) -> None:
+            """Metodo interno para repor a câmara (chamado pelo sinal do viewer)."""
+            self.repor_camara(mostrar_mensagem=True)
+
+        def repor_camara(self, mostrar_mensagem: bool = True) -> None:
+            """Repõe a câmara para a posição padrão do modo actual."""
+            self.viewer.repor_camara(self.modo, self.eixo_corte)
+            if mostrar_mensagem:
+                self.mostrar_mensagem("Câmara reposta.")
+
+        def mostrar_mensagem(self, texto: str) -> None:
+            """Actualiza a mensagem no viewer e na barra de estado (quando existir)."""
+            # Por enquanto, apenas no viewer
+            self.viewer.mostrar_mensagem(texto)
+            print(f"[MENSAGEM] {texto}")
+
         placeholder = QLabel("Área 3D (será implementada no próximo commit)")
         placeholder.setAlignment(Qt.AlignCenter)
         placeholder.setStyleSheet("color: #9fb0c9; font-size: 16px;")

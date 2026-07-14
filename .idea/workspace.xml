@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface.">
-      <change afterPath="$PROJECT_DIR$/user_interface/sidebar.py" afterDir="false" />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar painel lateral com campos de ficheiro e botão Calcular&#10;&#10;- Cria ficheiro sidebar.py com a classe Sidebar (QWidget).&#10;- O Sidebar contém:&#10;  - Título e subtítulo da aplicação.&#10;  - Campos para selecionar os ficheiros de pontos e elementos (com botões &quot;Abrir&quot;).&#10;  - Botão &quot;Calcular simulação&quot; (ligado a um sinal personalizado).&#10;  - Separadores estilizados.&#10;- A Sidebar emite o sinal `calcular_clicked` quando o botão é pressionado.&#10;- Adiciona os métodos `escolher_pontos` e `escolher_elementos` para abrir diálogos.&#10;- O main_window instancia o Sidebar e integra-o na janela.&#10;- Adiciona docstrings e type hints.">
+      <change afterPath="$PROJECT_DIR$/user_interface/viewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user_interface/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/main_window.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -288,7 +289,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784072519849</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Adicionar painel lateral com campos de ficheiro e botão Calcular&#10;&#10;- Cria ficheiro sidebar.py com a classe Sidebar (QWidget).&#10;- O Sidebar contém:&#10;  - Título e subtítulo da aplicação.&#10;  - Campos para selecionar os ficheiros de pontos e elementos (com botões &quot;Abrir&quot;).&#10;  - Botão &quot;Calcular simulação&quot; (ligado a um sinal personalizado).&#10;  - Separadores estilizados.&#10;- A Sidebar emite o sinal `calcular_clicked` quando o botão é pressionado.&#10;- Adiciona os métodos `escolher_pontos` e `escolher_elementos` para abrir diálogos.&#10;- O main_window instancia o Sidebar e integra-o na janela.&#10;- Adiciona docstrings e type hints.">
+      <option name="closed" value="true" />
+      <created>1784072734865</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1784072734865</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -315,7 +324,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Criacao do Projeto" />
     <MESSAGE value="criação do esqueleto do módulo de leitura de dados da malha&#10;Adição do ficheiro io_utils.py com a estrutura base para o pré-processamento. Foram definidas as assinaturas e as docstrings das funções 'ler_nos_e_condicoes' e 'ler_elementos_finais', e importada a biblioteca NumPy. Este esqueleto prepara o sistema para a futura leitura de coordenadas geométricas, conectividade dos tetraedros e extração das condições de fronteira (Dirichlet)." />
     <MESSAGE value="implementacao da leitura basica de coordenadas espaciais&#10;Atualizacao da funcao 'ler_nos_e_condicoes' para abrir o ficheiro txt, ignorar comentarios e extrair as colunas X, Y e Z para uma matriz NumPy." />
     <MESSAGE value="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres)." />
@@ -340,6 +348,7 @@
     <MESSAGE value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
     <MESSAGE value="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets)." />
     <MESSAGE value="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface." />
-    <option name="LAST_COMMIT_MESSAGE" value="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface." />
+    <MESSAGE value="Adicionar painel lateral com campos de ficheiro e botão Calcular&#10;&#10;- Cria ficheiro sidebar.py com a classe Sidebar (QWidget).&#10;- O Sidebar contém:&#10;  - Título e subtítulo da aplicação.&#10;  - Campos para selecionar os ficheiros de pontos e elementos (com botões &quot;Abrir&quot;).&#10;  - Botão &quot;Calcular simulação&quot; (ligado a um sinal personalizado).&#10;  - Separadores estilizados.&#10;- A Sidebar emite o sinal `calcular_clicked` quando o botão é pressionado.&#10;- Adiciona os métodos `escolher_pontos` e `escolher_elementos` para abrir diálogos.&#10;- O main_window instancia o Sidebar e integra-o na janela.&#10;- Adiciona docstrings e type hints." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionar painel lateral com campos de ficheiro e botão Calcular&#10;&#10;- Cria ficheiro sidebar.py com a classe Sidebar (QWidget).&#10;- O Sidebar contém:&#10;  - Título e subtítulo da aplicação.&#10;  - Campos para selecionar os ficheiros de pontos e elementos (com botões &quot;Abrir&quot;).&#10;  - Botão &quot;Calcular simulação&quot; (ligado a um sinal personalizado).&#10;  - Separadores estilizados.&#10;- A Sidebar emite o sinal `calcular_clicked` quando o botão é pressionado.&#10;- Adiciona os métodos `escolher_pontos` e `escolher_elementos` para abrir diálogos.&#10;- O main_window instancia o Sidebar e integra-o na janela.&#10;- Adiciona docstrings e type hints." />
   </component>
 </project>

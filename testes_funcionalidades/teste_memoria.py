@@ -45,6 +45,15 @@ def executar_teste_memoria(numero_nos, ligacoes_por_no=15):
 
     print(f"[SciPy]  Matriz Esparsa (CSR): {memoria_esparsa_mb:,.2f} MB")
 
+    # ---------------------------------------------------------
+    # 3. Conclusão
+    # ---------------------------------------------------------
+    if 'memoria_densa_mb' in locals():
+        poupanca = (1 - (memoria_esparsa_mb / memoria_densa_mb)) * 100
+        print("-" * 50)
+        print(f"CONCLUSÃO: O formato CSR poupou {poupanca:.4f}% de memória RAM!")
+        print("-" * 50 + "\n")
+
 
 executar_teste_memoria(5000)
 executar_teste_memoria(10000)

@@ -127,7 +127,6 @@ def reparar_malha_desconectada(Matriz_Nos, Matriz_Elementos, Condicoes_Fronteira
                  N' <= N, podendo ser menor se houverem duplicados.
         """
 
-    import numpy as np
     print("\n[Diagnóstico] A procurar falhas na malha (Mesh Welding)...")
 
     # 1. Arredondar coordenadas para fundir pontos colados (precisão 5 casas decimais)

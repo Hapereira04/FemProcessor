@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="implementacao do painel interativo de pos-processamento 3D&#10;Substituicao do placeholder em 'visualizar_corte_interativo' pelo modulo avancado PyVista. Adicionadas as rotinas de extracao de curvas equipotenciais (isosurfaces), glifos vetoriais (setas de campo eletrico) e os atalhos de teclado (key events) para controlo total da camara e do plano de corte dinâmico. Inclusao do HUD com instrucoes no ecra e funcao de screenshot para relatorios.">
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fem_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/fem_solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/io_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/io_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,9 +53,10 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.fem_solver.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.teste_memoria.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Correcao__erro__fem__solver",
+    "git-widget-placeholder": "criacao__feramentas__validacao",
     "last_opened_file_path": "C:/Users/haper/PycharmProjects/FemProcessor/ficheiros"
   }
 }]]></component>
@@ -169,7 +168,111 @@
       <option name="project" value="LOCAL" />
       <updated>1783522231184</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Aadicionar script base para teste de memória (teste_memoria.py)&#10;&#10;Cria o ficheiro `teste_memoria.py` com a definição da função&#10;`executar_teste_memoria` e a chamada para três tamanhos de malha&#10;(5k, 10k, 30k). Ainda não contém a lógica de alocação.">
+      <option name="closed" value="true" />
+      <created>1784067234342</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067234342</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Adicionar script base para teste de memória (teste_memoria.py)&#10;&#10;Cria o ficheiro `teste_memoria.py` com a definição da função&#10;`executar_teste_memoria` e a chamada para três tamanhos de malha&#10;(5k, 10k, 30k). Ainda não contém a lógica de alocação.">
+      <option name="closed" value="true" />
+      <created>1784067242321</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067242321</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Adicionar alocação da matriz densa e cálculo de memória&#10;&#10;Adiciona a tentativa de criar uma matriz densa (NumPy) N×N com `np.zeros`.&#10;Calcula o tamanho em MB através de `.nbytes` e captura `MemoryError`.&#10;Em caso de falha, estima o tamanho teórico.&#10;A memória é libertada imediatamente com `del`.">
+      <option name="closed" value="true" />
+      <created>1784067292957</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067292957</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Adicionar construção da matriz esparsa CSR e cálculo de memória&#10;&#10;Adiciona a criação de uma matriz esparsa no formato CSR (SciPy) com um número&#10;fixo de ligações por nó (15). São gerados arrays fictícios (`data`, `indices`,&#10;`indptr`) para simular a estrutura. Calcula o peso total em RAM somando os&#10;`nbytes` dos três arrays internos e exibe o resultado.">
+      <option name="closed" value="true" />
+      <created>1784067323018</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067323018</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Adicionar cálculo da poupança percentual de memória&#10;&#10;Após obter as memórias densa e esparsa, calcula a percentagem de memória&#10;poupada pelo formato CSR e exibe a conclusão no ecrã.">
+      <option name="closed" value="true" />
+      <created>1784067357295</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067357295</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Melhorar comentários e docstring; adicionar guarda __main__&#10;&#10;Preenche a docstring da função com descrição dos parâmetros, algoritmo e valores de retorno.&#10;Adiciona comentários explicativos a cada secção do código.&#10;Envolve a execução dos testes em `if __name__ == &quot;__main__&quot;` para permitir a importação do módulo sem executar os testes automaticamente.">
+      <option name="closed" value="true" />
+      <created>1784067433619</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067433619</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Adicionar script base para geração de malha com Gmsh&#10;&#10;Cria o ficheiro `gerar_malha.py` com a função `gerar_malha_avancada` e os&#10;parâmetros iniciais da simulação (dimensões da terra, vara, condutividade, etc.).&#10;Inicializa o Gmsh e define o modelo.">
+      <option name="closed" value="true" />
+      <created>1784067575919</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067575919</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Adicionar criação da geometria (terra e vara)&#10;&#10;Adiciona a construção da caixa de terra (bloco) e do cilindro da vara.&#10;Aplica a operação de corte para remover o volume da vara da terra.&#10;Sincroniza a geometria com o modelo.">
+      <option name="closed" value="true" />
+      <created>1784067695257</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067695257</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Adicionar geração da malha e extracção de tetraedros&#10;&#10;Configura os parâmetros de malha (algoritmos, tamanhos de elemento) e gera&#10;a malha 3D. Extrai os tetraedros (tipo 4) e obtém as tags dos nós.">
+      <option name="closed" value="true" />
+      <created>1784067760332</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067760332</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Adicionar mapeamento de tags para índices locais&#10;&#10;Reconstrói a lista de nós únicos a partir das tags dos tetraedros,&#10;cria um mapeamento tag → índice local (0‑based) e converte os tetraedros&#10;para índices locais, gerando a matriz de elementos.">
+      <option name="closed" value="true" />
+      <created>1784067813557</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067813557</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Adicionar detecção de fronteiras e gravação de ficheiros de entrada&#10;&#10;Atribui condições de potencial (0 V nas faces exteriores, V_vara na superfície&#10;da vara) e grava os ficheiros `pontos.txt` e `elementos.txt` no formato&#10;exigido pelo simulador. Finaliza o Gmsh.">
+      <option name="closed" value="true" />
+      <created>1784067883901</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067883901</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Corrigir variável `dist_varas` não definida e melhorar tolerâncias&#10;&#10;Adiciona a definição de `dist_varas` para suportar múltiplas varas.&#10;Ajusta a lógica de detecção da vara para usar a distância real.&#10;Melhora as tolerâncias de detecção de fronteiras para evitar falsos positivos.&#10;Garante que a pasta de saída é criada correctamente.">
+      <option name="closed" value="true" />
+      <created>1784067934644</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1784067934644</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico.">
+      <option name="closed" value="true" />
+      <created>1784068029700</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1784068029700</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -206,6 +309,19 @@
     <MESSAGE value="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos." />
     <MESSAGE value="conversao vtk e renderizacao 3d do mapa de potenciais&#10;Implementacao das funcoes 'preparar_malha_vtk' e 'visualizar_resultados_3d'. Adicionada a logica de traducao de arrays NumPy para grelhas nao estruturadas (UnstructuredGrid) do motor VTK (codigo 10 para tetraedros). Criacao da janela base de renderizacao com o mapa de cores (cmap='jet') para analise global das tensoes eletricas no solo." />
     <MESSAGE value="implementacao do painel interativo de pos-processamento 3D&#10;Substituicao do placeholder em 'visualizar_corte_interativo' pelo modulo avancado PyVista. Adicionadas as rotinas de extracao de curvas equipotenciais (isosurfaces), glifos vetoriais (setas de campo eletrico) e os atalhos de teclado (key events) para controlo total da camara e do plano de corte dinâmico. Inclusao do HUD com instrucoes no ecra e funcao de screenshot para relatorios." />
-    <option name="LAST_COMMIT_MESSAGE" value="implementacao do painel interativo de pos-processamento 3D&#10;Substituicao do placeholder em 'visualizar_corte_interativo' pelo modulo avancado PyVista. Adicionadas as rotinas de extracao de curvas equipotenciais (isosurfaces), glifos vetoriais (setas de campo eletrico) e os atalhos de teclado (key events) para controlo total da camara e do plano de corte dinâmico. Inclusao do HUD com instrucoes no ecra e funcao de screenshot para relatorios." />
+    <MESSAGE value="Aadicionar script base para teste de memória (teste_memoria.py)&#10;&#10;Cria o ficheiro `teste_memoria.py` com a definição da função&#10;`executar_teste_memoria` e a chamada para três tamanhos de malha&#10;(5k, 10k, 30k). Ainda não contém a lógica de alocação." />
+    <MESSAGE value="Adicionar script base para teste de memória (teste_memoria.py)&#10;&#10;Cria o ficheiro `teste_memoria.py` com a definição da função&#10;`executar_teste_memoria` e a chamada para três tamanhos de malha&#10;(5k, 10k, 30k). Ainda não contém a lógica de alocação." />
+    <MESSAGE value="Adicionar alocação da matriz densa e cálculo de memória&#10;&#10;Adiciona a tentativa de criar uma matriz densa (NumPy) N×N com `np.zeros`.&#10;Calcula o tamanho em MB através de `.nbytes` e captura `MemoryError`.&#10;Em caso de falha, estima o tamanho teórico.&#10;A memória é libertada imediatamente com `del`." />
+    <MESSAGE value="Adicionar construção da matriz esparsa CSR e cálculo de memória&#10;&#10;Adiciona a criação de uma matriz esparsa no formato CSR (SciPy) com um número&#10;fixo de ligações por nó (15). São gerados arrays fictícios (`data`, `indices`,&#10;`indptr`) para simular a estrutura. Calcula o peso total em RAM somando os&#10;`nbytes` dos três arrays internos e exibe o resultado." />
+    <MESSAGE value="Adicionar cálculo da poupança percentual de memória&#10;&#10;Após obter as memórias densa e esparsa, calcula a percentagem de memória&#10;poupada pelo formato CSR e exibe a conclusão no ecrã." />
+    <MESSAGE value="Melhorar comentários e docstring; adicionar guarda __main__&#10;&#10;Preenche a docstring da função com descrição dos parâmetros, algoritmo e valores de retorno.&#10;Adiciona comentários explicativos a cada secção do código.&#10;Envolve a execução dos testes em `if __name__ == &quot;__main__&quot;` para permitir a importação do módulo sem executar os testes automaticamente." />
+    <MESSAGE value="Adicionar script base para geração de malha com Gmsh&#10;&#10;Cria o ficheiro `gerar_malha.py` com a função `gerar_malha_avancada` e os&#10;parâmetros iniciais da simulação (dimensões da terra, vara, condutividade, etc.).&#10;Inicializa o Gmsh e define o modelo." />
+    <MESSAGE value="Adicionar criação da geometria (terra e vara)&#10;&#10;Adiciona a construção da caixa de terra (bloco) e do cilindro da vara.&#10;Aplica a operação de corte para remover o volume da vara da terra.&#10;Sincroniza a geometria com o modelo." />
+    <MESSAGE value="Adicionar geração da malha e extracção de tetraedros&#10;&#10;Configura os parâmetros de malha (algoritmos, tamanhos de elemento) e gera&#10;a malha 3D. Extrai os tetraedros (tipo 4) e obtém as tags dos nós." />
+    <MESSAGE value="Adicionar mapeamento de tags para índices locais&#10;&#10;Reconstrói a lista de nós únicos a partir das tags dos tetraedros,&#10;cria um mapeamento tag → índice local (0‑based) e converte os tetraedros&#10;para índices locais, gerando a matriz de elementos." />
+    <MESSAGE value="Adicionar detecção de fronteiras e gravação de ficheiros de entrada&#10;&#10;Atribui condições de potencial (0 V nas faces exteriores, V_vara na superfície&#10;da vara) e grava os ficheiros `pontos.txt` e `elementos.txt` no formato&#10;exigido pelo simulador. Finaliza o Gmsh." />
+    <MESSAGE value="Corrigir variável `dist_varas` não definida e melhorar tolerâncias&#10;&#10;Adiciona a definição de `dist_varas` para suportar múltiplas varas.&#10;Ajusta a lógica de detecção da vara para usar a distância real.&#10;Melhora as tolerâncias de detecção de fronteiras para evitar falsos positivos.&#10;Garante que a pasta de saída é criada correctamente." />
+    <MESSAGE value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
   </component>
 </project>

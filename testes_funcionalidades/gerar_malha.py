@@ -65,8 +65,30 @@ def gerar_malha_avancada(pasta="."):
         gmsh.finalize()
         return
 
-    # Matriz bruta de tetraedros contendo as Tags globais do Gmsh
     tetra_nodes_tags = np.array(elemNodeTags[idx_tetra]).reshape(-1, 4)
+
+    # RECONSTRUÇÃO TOTAL DA ESTRUTURA DE NÓS
+    tags_dos_tetraedros = np.unique(tetra_nodes_tags)
+
+    coords_validas = []
+    tag_para_novo_indice = {}
+
+    print("A extrair coordenadas limpas para os nós dos tetraedros...")
+    for novo_idx, tag in enumerate(tags_dos_tetraedros):
+        coord, _, _, _ = gmsh.model.mesh.getNode(tag)
+        coords_validas.append(coord)
+        tag_para_novo_indice[tag] = novo_idx
+
+    coords_validas = np.array(coords_validas)
+
+    # Mapeia os tetraedros para os novos índices limpos (0-based)
+    elementos = []
+    for elem_tags in tetra_nodes_tags:
+        idx0 = tag_para_novo_indice[elem_tags[0]]
+        idx1 = tag_para_novo_indice[elem_tags[1]]
+        idx2 = tag_para_novo_indice[elem_tags[2]]
+        idx3 = tag_para_novo_indice[elem_tags[3]]
+        elementos.append([idx0, idx1, idx2, idx3])
 
 
 if __name__ == "__main__":

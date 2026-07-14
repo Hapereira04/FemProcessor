@@ -7,5 +7,11 @@ from .main_window import JanelaMEF
 from .result_dataclass import ResultadoMEF
 from .utils import formatar
 from .main_window import JanelaMEF, iniciar_interface
+from .worker import TrabalhadorCalculo
 
-__all__ = ["JanelaMEF", "ResultadoMEF", "formatar"]
+__all__ = [
+    "JanelaMEF",
+    "ResultadoMEF",
+    "formatar",
+    "TrabalhadorCalculo"
+]

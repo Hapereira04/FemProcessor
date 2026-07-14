@@ -12,10 +12,11 @@ Este script coordena o fluxo de trabalho completo da simulação:
 """
 import os
 
-# Importação dos nossos novos módulos especializados
 import io_utils
 import fem_solver
 import visualization
+import sys
+from user_interface import iniciar_interface
 
 
 def main():
@@ -74,4 +75,5 @@ def main():
     visualization.visualizar_corte_interativo(nos, elementos, potenciais, gradientes, condicoes)
 
 if __name__ == "__main__":
+    sys.exit(iniciar_interface())
     main()

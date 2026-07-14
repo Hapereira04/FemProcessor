@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico.">
-      <change afterPath="$PROJECT_DIR$/User Interface/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/User Interface/main_window.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/User Interface/result_dataclass.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/User Interface/styles.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/User Interface/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets).">
+      <change afterPath="$PROJECT_DIR$/user_Interface/worker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -276,7 +272,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784068029700</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets).">
+      <option name="closed" value="true" />
+      <created>1784072321181</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1784072321181</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -326,6 +330,7 @@
     <MESSAGE value="Adicionar detecção de fronteiras e gravação de ficheiros de entrada&#10;&#10;Atribui condições de potencial (0 V nas faces exteriores, V_vara na superfície&#10;da vara) e grava os ficheiros `pontos.txt` e `elementos.txt` no formato&#10;exigido pelo simulador. Finaliza o Gmsh." />
     <MESSAGE value="Corrigir variável `dist_varas` não definida e melhorar tolerâncias&#10;&#10;Adiciona a definição de `dist_varas` para suportar múltiplas varas.&#10;Ajusta a lógica de detecção da vara para usar a distância real.&#10;Melhora as tolerâncias de detecção de fronteiras para evitar falsos positivos.&#10;Garante que a pasta de saída é criada correctamente." />
     <MESSAGE value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
-    <option name="LAST_COMMIT_MESSAGE" value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
+    <MESSAGE value="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets)." />
+    <option name="LAST_COMMIT_MESSAGE" value="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets)." />
   </component>
 </project>

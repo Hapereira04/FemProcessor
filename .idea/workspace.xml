@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico.">
+      <change afterPath="$PROJECT_DIR$/User Interface/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/User Interface/main_window.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/User Interface/result_dataclass.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/User Interface/styles.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/User Interface/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/io_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/io_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +60,7 @@
     "Python.teste_memoria.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "criacao__feramentas__validacao",
+    "git-widget-placeholder": "Criacao__da__ui",
     "last_opened_file_path": "C:/Users/haper/PycharmProjects/FemProcessor/ficheiros"
   }
 }]]></component>

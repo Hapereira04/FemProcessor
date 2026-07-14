@@ -28,6 +28,7 @@ from pyvistaqt import QtInteractor
 from .result_dataclass import ResultadoMEF
 from .utils import formatar
 from .styles import STYLESHEET
+from .sidebar import Sidebar
 
 # Importações dos módulos de cálculo (serão usados mais tarde)
 # import fem_solver
@@ -70,7 +71,68 @@ class JanelaMEF(QMainWindow):
         # self._criar_atalhos()
         # self._criar_barra_exportacao()
 
-    # Os restantes métodos serão adicionados nos commits seguintes.
+    def _criar_interface(self) -> None:
+        """
+        Constrói a interface completa: painel lateral + área de visualização 3D.
+        """
+        # Widget central
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout_principal = QHBoxLayout(central)
+        layout_principal.setContentsMargins(0, 0, 0, 0)
+        layout_principal.setSpacing(0)
+
+        # ---- Painel lateral (com scroll) ----
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+
+        self.sidebar = Sidebar()
+        scroll.setWidget(self.sidebar)
+
+        # Define a largura fixa do painel
+        sidebar_frame = QFrame(objectName="sidebar")
+        sidebar_frame.setFixedWidth(330)
+        sidebar_layout = QVBoxLayout(sidebar_frame)
+        sidebar_layout.setContentsMargins(0, 0, 0, 0)
+        sidebar_layout.addWidget(scroll)
+
+        layout_principal.addWidget(sidebar_frame)
+
+        # ---- Área de visualização (será preenchida no commit 4) ----
+        # Por agora, apenas um placeholder
+        placeholder = QLabel("Área 3D (será implementada no próximo commit)")
+        placeholder.setAlignment(Qt.AlignCenter)
+        placeholder.setStyleSheet("color: #9fb0c9; font-size: 16px;")
+        layout_principal.addWidget(placeholder, 1)
+
+        # Conecta o sinal da sidebar ao metodo de cálculo (será implementado depois)
+        self.sidebar.calcular_clicked.connect(self.calcular)
+
+    # Metodo calcular (esqueleto para já)
+    def calcular(self) -> None:
+        """Inicia o cálculo da simulação (será implementado num commit futuro)."""
+        pontos, elementos = self.sidebar.obter_caminhos()
+        if not os.path.isfile(pontos) or not os.path.isfile(elementos):
+            QMessageBox.warning(
+                self,
+                "Ficheiros em falta",
+                "Selecione ficheiros válidos para os nós e os elementos."
+            )
+            return
+        # Por enquanto, apenas uma mensagem
+        self.mostrar_mensagem("A calcular... (funcionalidade em breve)")
+
+    def mostrar_mensagem(self, texto: str) -> None:
+        """
+        Mostra uma mensagem na barra de estado (será melhorada depois).
+        """
+        # Como ainda não temos a barra de estado, usamos print para teste
+        print(f"[MENSAGEM] {texto}")
+        # Futuramente, actualizará a QLabel de estado
 
 def iniciar_interface(self) -> int:
     """

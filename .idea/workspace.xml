@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets).">
-      <change afterPath="$PROJECT_DIR$/user_Interface/worker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface.">
+      <change afterPath="$PROJECT_DIR$/user_interface/sidebar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/main_window.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -280,7 +280,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784072321181</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface.">
+      <option name="closed" value="true" />
+      <created>1784072519849</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1784072519849</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -331,6 +339,7 @@
     <MESSAGE value="Corrigir variável `dist_varas` não definida e melhorar tolerâncias&#10;&#10;Adiciona a definição de `dist_varas` para suportar múltiplas varas.&#10;Ajusta a lógica de detecção da vara para usar a distância real.&#10;Melhora as tolerâncias de detecção de fronteiras para evitar falsos positivos.&#10;Garante que a pasta de saída é criada correctamente." />
     <MESSAGE value="Adicionar docstring, comentários e proteger execução&#10;&#10;Preenche a docstring da função com descrição detalhada dos parâmetros, algoritmo e ficheiros gerados.&#10;Adiciona comentários explicativos em todas as secções principais.&#10;Envolve a execução em `if __name__ == &quot;__main__&quot;`.&#10;Melhora a formatação das mensagens de diagnóstico." />
     <MESSAGE value="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets)." />
-    <option name="LAST_COMMIT_MESSAGE" value="Criar módulo user_interface com estrutura base&#10;&#10;- Cria a pasta user_interface e o ficheiro __init__.py.&#10;- Adiciona result_dataclass.py com a dataclass ResultadoMEF.&#10;- Adiciona utils.py com a função formatar.&#10;- Adiciona styles.py com a folha de estilo CSS da aplicação.&#10;- Adiciona main_window.py com a classe JanelaMEF (apenas o esqueleto&#10;  com __init__, sem a construção dos widgets)." />
+    <MESSAGE value="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adicionar TrabalhadorCalculo para executar simulação em thread&#10;&#10;- Cria ficheiro worker.py com a classe TrabalhadorCalculo (QObject).&#10;- O trabalhador recebe os caminhos dos ficheiros de pontos e elementos.&#10;- No método executar(), lê os dados com io_utils, repara a malha,&#10;  monta a matriz, resolve e calcula gradientes.&#10;- Emite sinais: estado(str), concluido(ResultadoMEF), falhou(str).&#10;- Adiciona docstring completa e type hints.&#10;- Exporta a classe no __init__.py da user_interface.&#10;- Actualiza o ponto de entrada (main.py) para importar de user_interface." />
   </component>
 </project>

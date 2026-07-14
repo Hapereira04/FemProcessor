@@ -41,6 +41,33 @@ def gerar_malha_avancada(pasta="."):
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
 
+    # 3. GERAÇÃO DA MALHA
+    print("A gerar a malha de tetraedros...")
+    gmsh.option.setNumber("Mesh.Algorithm", 6)
+    gmsh.option.setNumber("Mesh.Algorithm3D", 10)
+    gmsh.option.setNumber("Mesh.CharacteristicLengthMin", diam_vara)
+    gmsh.option.setNumber("Mesh.CharacteristicLengthMax", 2.0)
+    gmsh.option.setNumber("Mesh.CharacteristicLengthFromCurvature", 1)
+    gmsh.option.setNumber("Mesh.MinimumElementsPerTwoPi", 12)
+
+    gmsh.model.mesh.generate(3)
+
+    # 4. EXTRAÇÃO EXCLUSIVA DE TETRAEDROS (Tipo 4)
+    elemTypes, elemTags, elemNodeTags = gmsh.model.mesh.getElements(dim=3)
+    idx_tetra = -1
+    for i, etype in enumerate(elemTypes):
+        if etype == 4:
+            idx_tetra = i
+            break
+
+    if idx_tetra == -1:
+        print("ERRO: Não foram gerados tetraedros.")
+        gmsh.finalize()
+        return
+
+    # Matriz bruta de tetraedros contendo as Tags globais do Gmsh
+    tetra_nodes_tags = np.array(elemNodeTags[idx_tetra]).reshape(-1, 4)
+
 
 if __name__ == "__main__":
     gerar_malha_avancada(".")

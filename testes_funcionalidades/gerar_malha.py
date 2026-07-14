@@ -90,6 +90,62 @@ def gerar_malha_avancada(pasta="."):
         idx3 = tag_para_novo_indice[elem_tags[3]]
         elementos.append([idx0, idx1, idx2, idx3])
 
+    # 5. ATRIBUIÇÃO DE CONDIÇÕES E GRAVAÇÃO DE FICHEIROS
+    print("A gravar os ficheiros prontos para simulação...")
+    os.makedirs(pasta, exist_ok=True)
+
+    tol_bordo = 1e-4
+    tol_cilindro = 1e-3
+
+    # Gravar pontos.txt com a estrutura: x y z potencial
+    with open(os.path.join(pasta, "../ficheiros/pontos.txt"), "w") as f_nos:
+        for coord in coords_validas:
+            x, y, z = coord
+            potencial = -1.0
+
+            is_bordo_x = (abs(x + L_terra / 2) < tol_bordo) or (abs(x - L_terra / 2) < tol_bordo)
+            is_bordo_y = (abs(y + L_terra / 2) < tol_bordo) or (abs(y - L_terra / 2) < tol_bordo)
+            is_fundo = abs(z + prof_terra) < tol_bordo
+
+            is_vara = False
+            if z >= -comp_vara - tol_cilindro and z <= 0 + tol_cilindro:
+                if num_varas == 1:
+                    raio_n = np.sqrt(x ** 2 + y ** 2)
+                    if raio_n <= raio + tol_cilindro:
+                        is_vara = True
+                else:
+                    raio_n1 = np.sqrt((x + dist_varas / 2) ** 2 + y ** 2)
+                    raio_n2 = np.sqrt((x - dist_varas / 2) ** 2 + y ** 2)
+                    if raio_n1 <= raio + tol_cilindro or raio_n2 <= raio + tol_cilindro:
+                        is_vara = True
+
+            if is_vara:
+                potencial = V_vara
+            elif is_bordo_x or is_bordo_y or is_fundo:
+                potencial = 0.0
+
+            f_nos.write(f"{x:.6f} {y:.6f} {z:.6f} {potencial:.1f}\n")
+
+    # Gravar elementos.txt com a estrutura: n0 n1 n2 n3 condutividade
+    with open(os.path.join(pasta, "../ficheiros/elementos.txt"), "w") as f_elem:
+        for el in elementos:
+            f_elem.write(f"{el[0]} {el[1]} {el[2]} {el[3]} {Condutividade_Terra:.6f}\n")
+
+    gmsh.finalize()
+
+    usados = np.unique(np.array(elementos))
+
+    print(f"Nós escritos: {len(coords_validas)}")
+    print(f"Nós usados : {len(usados)}")
+    print(f"Maior índice: {usados.max()}")
+    print(f"Menor índice: {usados.min()}")
+
+    print("\n" + "=" * 50)
+    print("✅ FICHEIROS GERADOS EM SEGURANÇA.")
+    print(f"Total de Nós no pontos.txt: {len(coords_validas)}")
+    print(f"Total de Elementos no elementos.txt: {len(elementos)}")
+    print("=" * 50)
+
 
 if __name__ == "__main__":
     gerar_malha_avancada(".")

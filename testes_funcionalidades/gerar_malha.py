@@ -1,5 +1,3 @@
-from cmath import nan
-
 import gmsh
 import numpy as np
 import os
@@ -8,13 +6,13 @@ import os
 def gerar_malha_avancada(pasta="."):
     # 1. PARÂMETROS DA SIMULAÇÃO
     num_varas = 1
+    dist_varas = 2.0  # Distância entre varas (para múltiplas)
     diam_vara = 0.0218
     comp_vara = 3.0
     L_terra = 60.0
     prof_terra = 40.0
     V_vara = 1000000.0
     Condutividade_Terra = 0.001
-    dist_varas = nan
 
     print("A iniciar o motor Gmsh...")
     gmsh.initialize()
@@ -92,21 +90,26 @@ def gerar_malha_avancada(pasta="."):
 
     # 5. ATRIBUIÇÃO DE CONDIÇÕES E GRAVAÇÃO DE FICHEIROS
     print("A gravar os ficheiros prontos para simulação...")
+    # Garante que a pasta de saída existe
     os.makedirs(pasta, exist_ok=True)
+    pasta_ficheiros = os.path.join(pasta, "../ficheiros")
+    os.makedirs(pasta_ficheiros, exist_ok=True)
 
     tol_bordo = 1e-4
     tol_cilindro = 1e-3
 
     # Gravar pontos.txt com a estrutura: x y z potencial
-    with open(os.path.join(pasta, "../ficheiros/pontos.txt"), "w") as f_nos:
+    with open(os.path.join(pasta_ficheiros, "pontos.txt"), "w") as f_nos:
         for coord in coords_validas:
             x, y, z = coord
             potencial = -1.0
 
+            # Fronteiras exteriores da terra
             is_bordo_x = (abs(x + L_terra / 2) < tol_bordo) or (abs(x - L_terra / 2) < tol_bordo)
             is_bordo_y = (abs(y + L_terra / 2) < tol_bordo) or (abs(y - L_terra / 2) < tol_bordo)
             is_fundo = abs(z + prof_terra) < tol_bordo
 
+            # Detecção da superfície da vara
             is_vara = False
             if z >= -comp_vara - tol_cilindro and z <= 0 + tol_cilindro:
                 if num_varas == 1:
@@ -127,7 +130,7 @@ def gerar_malha_avancada(pasta="."):
             f_nos.write(f"{x:.6f} {y:.6f} {z:.6f} {potencial:.1f}\n")
 
     # Gravar elementos.txt com a estrutura: n0 n1 n2 n3 condutividade
-    with open(os.path.join(pasta, "../ficheiros/elementos.txt"), "w") as f_elem:
+    with open(os.path.join(pasta_ficheiros, "elementos.txt"), "w") as f_elem:
         for el in elementos:
             f_elem.write(f"{el[0]} {el[1]} {el[2]} {el[3]} {Condutividade_Terra:.6f}\n")
 

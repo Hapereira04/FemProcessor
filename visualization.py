@@ -62,8 +62,6 @@ def visualizar_corte_interativo(nos, elementos, potenciais, gradientes, condicoe
     :param gradientes: Array NumPy (M x 3) com o vetor Campo Elétrico calculado por elemento.
     :param condicoes: Dicionário com as condições de fronteira (índice do nó : voltagem).
     """
-    import pyvista as pv
-    import numpy as np
 
     # Descobre os limites globais absolutos da tua simulação
     pot_min = np.min(potenciais)

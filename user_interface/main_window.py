@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 import scipy.sparse as sparse
@@ -281,6 +281,81 @@ class JanelaMEF(QMainWindow):
             np.savetxt(destino, dados, delimiter="\t", header="linha\tcoluna\tvalor", comments="", fmt=["%d", "%d", "%.12g"])
             self.mostrar_mensagem(f"Matriz exportada: {os.path.basename(destino)}")
 
+    # ---- Exportação de potenciais, campo e elementos ----
+    @staticmethod
+    def _detalhes_formato(formato: str) -> Tuple[str, str, str]:
+        """
+        Devolve a extensão, o filtro e o separador para um formato de exportação.
+
+        :param formato: "csv", "txt" ou "tsv".
+        :return: Tupla (extensao, filtro, separador).
+        """
+        formatos = {
+            "csv": (".csv", "CSV (*.csv)", ","),
+            "txt": (".txt", "Texto tabulado (*.txt)", "\t"),
+            "tsv": (".tsv", "TSV (*.tsv)", "\t"),
+        }
+        return formatos[formato]
+
+    def _exportar_potenciais(self, formato: str = "csv") -> None:
+        if not self._confirmar_resultado():
+            return
+        extensao, filtro, separador = self._detalhes_formato(formato)
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar potenciais", f"potenciais{extensao}", filtro
+        )
+        if not destino:
+            return
+        destino = self._garantir_extensao(destino, extensao)
+        np.savetxt(
+            destino,
+            np.column_stack((np.arange(len(self.resultado.nos)), self.resultado.nos, self.resultado.potenciais)),
+            delimiter=separador,
+            header=f"no{separador}x{separador}y{separador}z{separador}potencial_V",
+            comments="",
+        )
+        self.mostrar_mensagem(f"Potenciais exportados: {os.path.basename(destino)}")
+
+    def _exportar_campo(self, formato: str = "csv") -> None:
+        if not self._confirmar_resultado():
+            return
+        extensao, filtro, separador = self._detalhes_formato(formato)
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar campo elétrico", f"campo_eletrico{extensao}", filtro
+        )
+        if not destino:
+            return
+        destino = self._garantir_extensao(destino, extensao)
+        centros = self.resultado.nos[self.resultado.elementos].mean(axis=1)
+        np.savetxt(
+            destino,
+            np.column_stack((np.arange(len(centros)), centros, self.resultado.gradientes)),
+            delimiter=separador,
+            header=f"elemento{separador}x{separador}y{separador}z{separador}Ex{separador}Ey{separador}Ez",
+            comments="",
+        )
+        self.mostrar_mensagem(f"Campo elétrico exportado: {os.path.basename(destino)}")
+
+    def _exportar_elementos(self, formato: str = "csv") -> None:
+        if not self._confirmar_resultado():
+            return
+        extensao, filtro, separador = self._detalhes_formato(formato)
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar elementos", f"elementos{extensao}", filtro
+        )
+        if not destino:
+            return
+        destino = self._garantir_extensao(destino, extensao)
+        np.savetxt(
+            destino,
+            np.column_stack((np.arange(len(self.resultado.elementos)), self.resultado.elementos)),
+            delimiter=separador,
+            header=f"elemento{separador}no_0{separador}no_1{separador}no_2{separador}no_3",
+            comments="",
+            fmt="%d",
+        )
+        self.mostrar_mensagem(f"Elementos exportados: {os.path.basename(destino)}")
+
     # ---- Métodos auxiliares para exportação ----
     def _confirmar_resultado(self) -> bool:
         if self.resultado is None:
@@ -311,31 +386,25 @@ class JanelaMEF(QMainWindow):
         sub_rigidez.addAction("Texto tabulado (.txt)...", self._exportar_matriz_txt)
 
         sub_pot = menu.addMenu("Potenciais por nó")
-        sub_pot.addAction("CSV (.csv)...", self._exportar_potenciais)
-        sub_pot.addAction("Texto tabulado (.txt)...", self._exportar_potenciais)
-        sub_pot.addAction("TSV (.tsv)...", self._exportar_potenciais)
+        sub_pot.addAction("CSV (.csv)...", lambda: self._exportar_potenciais("csv"))
+        sub_pot.addAction("Texto tabulado (.txt)...", lambda: self._exportar_potenciais("txt"))
+        sub_pot.addAction("TSV (.tsv)...", lambda: self._exportar_potenciais("tsv"))
 
         sub_campo = menu.addMenu("Campo elétrico")
-        sub_campo.addAction("CSV (.csv)...", self._exportar_campo)
-        sub_campo.addAction("Texto tabulado (.txt)...", self._exportar_campo)
-        sub_campo.addAction("TSV (.tsv)...", self._exportar_campo)
+        sub_campo.addAction("CSV (.csv)...", lambda: self._exportar_campo("csv"))
+        sub_campo.addAction("Texto tabulado (.txt)...", lambda: self._exportar_campo("txt"))
+        sub_campo.addAction("TSV (.tsv)...", lambda: self._exportar_campo("tsv"))
 
         sub_elem = menu.addMenu("Elementos")
-        sub_elem.addAction("CSV (.csv)...", self._exportar_elementos)
-        sub_elem.addAction("Texto tabulado (.txt)...", self._exportar_elementos)
-        sub_elem.addAction("TSV (.tsv)...", self._exportar_elementos)
+        sub_elem.addAction("CSV (.csv)...", lambda: self._exportar_elementos("csv"))
+        sub_elem.addAction("Texto tabulado (.txt)...", lambda: self._exportar_elementos("txt"))
+        sub_elem.addAction("TSV (.tsv)...", lambda: self._exportar_elementos("tsv"))
 
         barra.addMenu(menu)
 
-    # ---- Placeholders para os próximos commits ----
+    # ---- Placeholder para Excel ----
     def _exportar_excel(self) -> None:
         QMessageBox.information(self, "Exportar Excel", "Funcionalidade em desenvolvimento.")
-    def _exportar_potenciais(self) -> None:
-        QMessageBox.information(self, "Exportar Potenciais", "Funcionalidade em desenvolvimento.")
-    def _exportar_campo(self) -> None:
-        QMessageBox.information(self, "Exportar Campo", "Funcionalidade em desenvolvimento.")
-    def _exportar_elementos(self) -> None:
-        QMessageBox.information(self, "Exportar Elementos", "Funcionalidade em desenvolvimento.")
 
 
 # ------------------------------------------------------------

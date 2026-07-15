@@ -52,14 +52,13 @@ class JanelaMEF(QMainWindow):
         self._criar_barra_exportacao()
 
     def _criar_interface(self) -> None:
-        """Constrói a interface: sidebar + visualizador."""
         central = QWidget()
         self.setCentralWidget(central)
         layout = QHBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # ---- Sidebar com scroll ----
+        # Sidebar com scroll
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -77,11 +76,11 @@ class JanelaMEF(QMainWindow):
         sidebar_layout.addWidget(scroll)
         layout.addWidget(sidebar_frame)
 
-        # ---- Visualizador 3D ----
+        # Visualizador 3D
         self.visualizer = Visualizer3D()
         layout.addWidget(self.visualizer, 1)
 
-        # Ligações dos sinais
+        # Ligações
         self.sidebar.calcular_clicked.connect(self.calcular)
         self.sidebar.modo_alterado.connect(self._definir_modo)
         self.sidebar.eixo_alterado.connect(self._definir_eixo)
@@ -93,7 +92,7 @@ class JanelaMEF(QMainWindow):
 
         self.visualizer.mostrar_mensagem("Carregue uma malha e calcule para iniciar.")
 
-    # ---- Métodos de visualização ----
+    # ---- Visualização ----
     @Slot(str)
     def _definir_modo(self, modo: str) -> None:
         self.visualizer.definir_modo(modo)
@@ -182,7 +181,15 @@ class JanelaMEF(QMainWindow):
         limites = self._obter_limites_corte(self.visualizer.eixo_corte)
         self.sidebar.definir_limites_corte(*limites)
 
-        self._atualizar_indicadores(resultado)
+        # Atualizar indicadores
+        delta_v = max(resultado.condicoes.values()) - min(resultado.condicoes.values())
+        corrente = delta_v / resultado.resistencia if resultado.resistencia else None
+        self.sidebar.atualizar_indicadores(
+            resistencia=resultado.resistencia,
+            corrente=corrente,
+            num_nos=len(resultado.nos),
+            num_elementos=len(resultado.elementos)
+        )
 
         self.mostrar_mensagem("Cálculo concluído. Use os controlos para explorar os resultados.")
         self._atualizar_visualizacao(repor_vista=True)
@@ -200,10 +207,6 @@ class JanelaMEF(QMainWindow):
             self.thread.deleteLater()
         self.trabalhador = None
         self.thread = None
-
-    def _atualizar_indicadores(self, resultado: ResultadoMEF) -> None:
-        # Placeholder – será implementado no próximo commit
-        pass
 
     # ---- Mensagens ----
     def mostrar_mensagem(self, texto: str) -> None:
@@ -277,7 +280,7 @@ class JanelaMEF(QMainWindow):
 
         barra.addMenu(menu)
 
-    # ---- Placeholders para exportação ----
+    # ---- Exportações (placeholders a serem implementados nos próximos commits) ----
     def _exportar_excel(self) -> None:
         QMessageBox.information(self, "Exportar Excel", "Funcionalidade em desenvolvimento.")
     def _exportar_matriz(self) -> None:

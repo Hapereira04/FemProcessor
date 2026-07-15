@@ -1,7 +1,7 @@
 """
 sidebar.py
 ==========
-Define o painel lateral da aplicação, com controlos de ficheiros, cálculo e visualização.
+Define o painel lateral da aplicação, com controlos de ficheiros, cálculo, visualização e indicadores de resultado.
 """
 
 from __future__ import annotations
@@ -15,13 +15,14 @@ from PySide6.QtWidgets import (
     QPushButton, QFileDialog, QScrollArea, QFrame, QButtonGroup,
     QCheckBox, QSlider, QDoubleSpinBox
 )
+from PySide6.QtCore import Qt
+
+from .utils import formatar
 
 
 class Sidebar(QWidget):
     """
-    Painel lateral da aplicação, contendo controlos de entrada, cálculo e visualização.
-
-    :param parent: Widget pai (normalmente a janela principal).
+    Painel lateral da aplicação, contendo controlos de entrada, cálculo, visualização e indicadores.
     """
 
     # Sinais principais
@@ -38,20 +39,19 @@ class Sidebar(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        # Caminhos dos ficheiros (predefinições)
+        # Caminhos dos ficheiros
         self.caminho_pontos: str = "ficheiros/pontos.txt"
         self.caminho_elementos: str = "ficheiros/elementos.txt"
 
-        # Limites do corte (inicializados depois)
+        # Limites do corte
         self._limite_min: float = 0.0
         self._limite_max: float = 1.0
 
         self._setup_ui()
-        self._atualizar_visibilidade_corte(False)  # modo 3D por omissão
+        self._atualizar_visibilidade_corte(False)
 
     def _setup_ui(self) -> None:
         """Constrói a interface do painel lateral."""
-        # Layout principal
         layout = QVBoxLayout(self)
         layout.setContentsMargins(22, 24, 22, 20)
         layout.setSpacing(12)
@@ -66,21 +66,9 @@ class Sidebar(QWidget):
         # Separador DADOS DA MALHA
         layout.addWidget(self._separador("DADOS DA MALHA"))
 
-        # Campo: ficheiro de pontos
-        self._adicionar_campo_ficheiro(
-            layout,
-            "Nós e fronteiras",
-            self.caminho_pontos,
-            self._escolher_pontos
-        )
-
-        # Campo: ficheiro de elementos
-        self._adicionar_campo_ficheiro(
-            layout,
-            "Tetraedros e material",
-            self.caminho_elementos,
-            self._escolher_elementos
-        )
+        # Campos de ficheiro
+        self._adicionar_campo_ficheiro(layout, "Nós e fronteiras", self.caminho_pontos, self._escolher_pontos)
+        self._adicionar_campo_ficheiro(layout, "Tetraedros e material", self.caminho_elementos, self._escolher_elementos)
 
         # Botão Calcular
         self.botao_calcular = QPushButton("Calcular simulação", objectName="primario")
@@ -91,7 +79,7 @@ class Sidebar(QWidget):
         layout.addSpacing(10)
         layout.addWidget(self._separador("VISUALIZAÇÃO"))
 
-        # ---- Modos 3D/Corte ----
+        # Modos
         modos_layout = QHBoxLayout()
         self.botao_3d = QPushButton("3D")
         self.botao_corte = QPushButton("Corte")
@@ -108,7 +96,7 @@ class Sidebar(QWidget):
         modos_layout.addWidget(self.botao_corte)
         layout.addLayout(modos_layout)
 
-        # ---- Eixos do corte (visíveis apenas no modo corte) ----
+        # Eixos
         self.label_eixo = QLabel("Orientação do corte", objectName="rotulo")
         layout.addWidget(self.label_eixo)
         eixos_layout = QHBoxLayout()
@@ -125,7 +113,7 @@ class Sidebar(QWidget):
             self.botoes_eixos.append(btn)
         layout.addLayout(eixos_layout)
 
-        # ---- Posição do plano de corte ----
+        # Posição do plano
         self.label_posicao = QLabel("Posição do plano", objectName="rotulo")
         layout.addWidget(self.label_posicao)
 
@@ -147,7 +135,7 @@ class Sidebar(QWidget):
         self.label_limites = QLabel("Limites: --", objectName="ajuda")
         layout.addWidget(self.label_limites)
 
-        # ---- Checkboxes ----
+        # Checkboxes
         self.mostrar_contornos = QCheckBox("Mostrar curvas de potencial")
         self.mostrar_contornos.setChecked(True)
         self.mostrar_contornos.toggled.connect(self.mostrar_contornos_alterado.emit)
@@ -162,30 +150,32 @@ class Sidebar(QWidget):
         self.mostrar_malha.toggled.connect(self.mostrar_malha_alterado.emit)
         layout.addWidget(self.mostrar_malha)
 
-        # Espaço flexível para empurrar os widgets para cima
+        # Separador RESULTADO
+        layout.addSpacing(8)
+        layout.addWidget(self._separador("RESULTADO"))
+
+        # Indicadores
+        self.indicadores: dict[str, QLabel] = {}
+        for chave, texto in (
+            ("resistencia", "Resistência"),
+            ("corrente", "Corrente"),
+            ("nos", "Nós"),
+            ("elementos", "Elementos"),
+        ):
+            label = QLabel(f"<span>{texto}</span><b>--</b>", objectName="indicador")
+            label.setTextFormat(Qt.RichText)
+            self.indicadores[chave] = label
+            layout.addWidget(label)
+
+        # Espaço flexível
         layout.addStretch(1)
 
-    # ---- Métodos auxiliares de UI ----
+    # ---- Métodos auxiliares ----
     def _separador(self, texto: str) -> QLabel:
-        """Cria um rótulo com estilo de separador."""
         label = QLabel(texto, objectName="separador")
         return label
 
-    def _adicionar_campo_ficheiro(
-        self,
-        layout: QVBoxLayout,
-        titulo: str,
-        valor_inicial: str,
-        callback
-    ) -> None:
-        """
-        Adiciona um campo de seleção de ficheiro ao layout.
-
-        :param layout: Layout onde adicionar.
-        :param titulo: Texto do rótulo.
-        :param valor_inicial: Caminho inicial do ficheiro.
-        :param callback: Função chamada ao clicar no botão "Abrir".
-        """
+    def _adicionar_campo_ficheiro(self, layout, titulo, valor_inicial, callback):
         layout.addWidget(QLabel(titulo, objectName="rotulo"))
         linha = QHBoxLayout()
         campo = QLineEdit(valor_inicial)
@@ -197,27 +187,23 @@ class Sidebar(QWidget):
         linha.addWidget(botao)
         layout.addLayout(linha)
 
-    # ---- Métodos para seleção de ficheiros ----
-    def _escolher_pontos(self) -> None:
+    def _escolher_pontos(self):
         caminho, _ = QFileDialog.getOpenFileName(
-            self, "Selecionar ficheiro de nós",
-            self.caminho_pontos, "Texto (*.txt)"
+            self, "Selecionar ficheiro de nós", self.caminho_pontos, "Texto (*.txt)"
         )
         if caminho:
             self.caminho_pontos = caminho
             self._atualizar_campo_ficheiro("pontos", caminho)
 
-    def _escolher_elementos(self) -> None:
+    def _escolher_elementos(self):
         caminho, _ = QFileDialog.getOpenFileName(
-            self, "Selecionar ficheiro de elementos",
-            self.caminho_elementos, "Texto (*.txt)"
+            self, "Selecionar ficheiro de elementos", self.caminho_elementos, "Texto (*.txt)"
         )
         if caminho:
             self.caminho_elementos = caminho
             self._atualizar_campo_ficheiro("elementos", caminho)
 
-    def _atualizar_campo_ficheiro(self, tipo: str, caminho: str) -> None:
-        """Atualiza o QLineEdit correspondente ao tipo de ficheiro."""
+    def _atualizar_campo_ficheiro(self, tipo: str, caminho: str):
         for child in self.findChildren(QLineEdit):
             if child.objectName() == f"campo_{tipo}":
                 child.setText(caminho)
@@ -225,32 +211,42 @@ class Sidebar(QWidget):
 
     # ---- Métodos públicos ----
     def obter_caminhos(self) -> tuple[str, str]:
-        """Devolve os caminhos atuais dos ficheiros."""
         return self.caminho_pontos, self.caminho_elementos
 
     def definir_botao_calcular_habilitado(self, habilitado: bool) -> None:
-        """Habilita ou desabilita o botão Calcular."""
         self.botao_calcular.setEnabled(habilitado)
 
     def definir_limites_corte(self, limite_min: float, limite_max: float) -> None:
-        """
-        Define os limites do corte e actualiza os controlos.
-
-        :param limite_min: Valor mínimo do eixo.
-        :param limite_max: Valor máximo do eixo.
-        """
         self._limite_min = limite_min
         self._limite_max = limite_max
         self.label_limites.setText(f"Limites: {limite_min:.3f} a {limite_max:.3f} m")
         self.posicao_corte.setRange(limite_min, limite_max)
         self.posicao_corte.setSingleStep((limite_max - limite_min) / 1000)
-        # Repõe o slider para o centro
         self.slider_corte.setValue(500)
         self._slider_alterado(500)
 
+    def atualizar_indicadores(self, resistencia: Optional[float], corrente: Optional[float],
+                              num_nos: int, num_elementos: int) -> None:
+        """
+        Atualiza os indicadores de resultado.
+
+        :param resistencia: Resistência em ohms (pode ser None).
+        :param corrente: Corrente em amperes (pode ser None).
+        :param num_nos: Número de nós.
+        :param num_elementos: Número de elementos.
+        """
+        valores = {
+            "resistencia": formatar(resistencia, "Ω"),
+            "corrente": formatar(corrente, "A"),
+            "nos": str(num_nos),
+            "elementos": str(num_elementos),
+        }
+        nomes = {"resistencia": "Resistência", "corrente": "Corrente", "nos": "Nós", "elementos": "Elementos"}
+        for chave, valor in valores.items():
+            self.indicadores[chave].setText(f"<span>{nomes[chave]}</span><br><b>{valor}</b>")
+
     # ---- Slots internos ----
-    def _slider_alterado(self, valor: int) -> None:
-        """Emite a posição do corte quando o slider é movido."""
+    def _slider_alterado(self, valor: int):
         frac = valor / 1000.0
         pos = self._limite_min + frac * (self._limite_max - self._limite_min)
         self.posicao_corte.blockSignals(True)
@@ -258,12 +254,10 @@ class Sidebar(QWidget):
         self.posicao_corte.blockSignals(False)
         self.posicao_corte_alterada.emit(pos)
 
-    def _posicao_alterada(self, pos: float) -> None:
-        """Emite a posição do corte quando o spinbox é alterado."""
+    def _posicao_alterada(self, pos: float):
         self.posicao_corte_alterada.emit(pos)
 
-    def _atualizar_visibilidade_corte(self, visivel: bool) -> None:
-        """Mostra ou esconde os controlos do corte."""
+    def _atualizar_visibilidade_corte(self, visivel: bool):
         self.label_eixo.setVisible(visivel)
         for btn in self.botoes_eixos:
             btn.setVisible(visivel)

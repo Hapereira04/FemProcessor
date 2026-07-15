@@ -1,267 +1,205 @@
 """
-sidebar.py
-==========
-Define o painel lateral da aplicação, com controlos de ficheiros, cálculo, visualização e indicadores de resultado.
+Módulo do painel lateral esquerdo contendo os controlos de entrada,
+opções de visualização e indicadores de resultados.
 """
-
-from __future__ import annotations
-
-import os
-from typing import Optional
-
-from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPushButton, QFileDialog, QScrollArea, QFrame, QButtonGroup,
-    QCheckBox, QSlider, QDoubleSpinBox
-)
+from PySide6.QtWidgets import (QFrame, QVBoxLayout, QWidget, QScrollArea, QLabel,
+                               QHBoxLayout, QLineEdit, QPushButton, QButtonGroup,
+                               QSlider, QDoubleSpinBox, QCheckBox, QFileDialog)
 from PySide6.QtCore import Qt
 
-from .utils import formatar
 
-
-class Sidebar(QWidget):
+class Sidebar(QFrame):
     """
-    Painel lateral da aplicação, contendo controlos de entrada, cálculo, visualização e indicadores.
+    Componente visual que gere o menu lateral esquerdo da UI.
+    Inclui scrollbar automática e organização vertical de definições.
     """
 
-    # Sinais principais
-    calcular_clicked = Signal()
+    def __init__(self, parent=None):
+        """
+        Construtor do painel lateral. Configura todos os widgets internos.
 
-    # Sinais de visualização
-    modo_alterado = Signal(str)               # "superficie" ou "corte"
-    eixo_alterado = Signal(str)               # "x", "y", "z"
-    posicao_corte_alterada = Signal(float)
-    mostrar_contornos_alterado = Signal(bool)
-    mostrar_setas_alterado = Signal(bool)
-    mostrar_malha_alterado = Signal(bool)
-
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        :param parent: QWidget pai (normalmente a janela principal).
+        """
         super().__init__(parent)
+        self.setFixedWidth(330)
+        self.setObjectName("sidebar")
 
-        # Caminhos dos ficheiros
-        self.caminho_pontos: str = "ficheiros/pontos.txt"
-        self.caminho_elementos: str = "ficheiros/elementos.txt"
+        # Layout raiz do painel
+        painel_layout = QVBoxLayout(self)
+        painel_layout.setContentsMargins(0, 0, 0, 0)
+        painel_layout.setSpacing(0)
 
-        # Limites do corte
-        self._limite_min: float = 0.0
-        self._limite_max: float = 1.0
+        # Configuração da Scroll Area para ecrãs mais pequenos
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setStyleSheet("QScrollArea { border: none; background: transparent; }")
 
-        self._setup_ui()
-        self._atualizar_visibilidade_corte(False)
+        # Conteúdo efetivo da barra lateral
+        conteudo_painel = QWidget()
+        conteudo_painel.setStyleSheet("background: transparent;")
+        lateral = QVBoxLayout(conteudo_painel)
+        lateral.setContentsMargins(22, 24, 22, 20)
+        lateral.setSpacing(12)
 
-    def _setup_ui(self) -> None:
-        """Constrói a interface do painel lateral."""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(22, 24, 22, 20)
-        layout.setSpacing(12)
-
-        # Títulos
+        # ====== TÍTULO ======
         titulo = QLabel("TerraMEF", objectName="titulo")
         subtitulo = QLabel("Simulador de potencial e aterramento", objectName="subtitulo")
-        layout.addWidget(titulo)
-        layout.addWidget(subtitulo)
-        layout.addSpacing(14)
+        lateral.addWidget(titulo)
+        lateral.addWidget(subtitulo)
+        lateral.addSpacing(14)
 
-        # Separador DADOS DA MALHA
-        layout.addWidget(self._separador("DADOS DA MALHA"))
+        # ====== DADOS DA MALHA ======
+        lateral.addWidget(self._separador("DADOS DA MALHA"))
+        caixa_pontos, self.caminho_pontos = self._campo_ficheiro("Nos e fronteiras", "ficheiros/pontos.txt",
+                                                                 self.escolher_pontos)
+        caixa_elementos, self.caminho_elementos = self._campo_ficheiro("Tetraedros e material",
+                                                                       "ficheiros/elementos.txt",
+                                                                       self.escolher_elementos)
+        lateral.addWidget(caixa_pontos)
+        lateral.addWidget(caixa_elementos)
 
-        # Campos de ficheiro
-        self._adicionar_campo_ficheiro(layout, "Nós e fronteiras", self.caminho_pontos, self._escolher_pontos)
-        self._adicionar_campo_ficheiro(layout, "Tetraedros e material", self.caminho_elementos, self._escolher_elementos)
+        self.botao_calcular = QPushButton("Calcular simulacao", objectName="primario")
+        lateral.addWidget(self.botao_calcular)
 
-        # Botão Calcular
-        self.botao_calcular = QPushButton("Calcular simulação", objectName="primario")
-        self.botao_calcular.clicked.connect(self.calcular_clicked.emit)
-        layout.addWidget(self.botao_calcular)
+        lateral.addSpacing(10)
+        lateral.addWidget(self._separador("VISUALIZACAO"))
 
-        # Separador VISUALIZAÇÃO
-        layout.addSpacing(10)
-        layout.addWidget(self._separador("VISUALIZAÇÃO"))
-
-        # Modos
-        modos_layout = QHBoxLayout()
-        self.botao_3d = QPushButton("3D")
+        # ====== MODOS DE VISTA ======
+        linha_modos = QHBoxLayout()
+        self.botao_superficie = QPushButton("3D")
         self.botao_corte = QPushButton("Corte")
-        self.botao_3d.setCheckable(True)
+        self.botao_superficie.setCheckable(True)
         self.botao_corte.setCheckable(True)
-        self.botao_3d.setChecked(True)
-        grupo_modos = QButtonGroup(self)
-        grupo_modos.setExclusive(True)
-        grupo_modos.addButton(self.botao_3d)
-        grupo_modos.addButton(self.botao_corte)
-        self.botao_3d.clicked.connect(lambda: self.modo_alterado.emit("superficie"))
-        self.botao_corte.clicked.connect(lambda: self.modo_alterado.emit("corte"))
-        modos_layout.addWidget(self.botao_3d)
-        modos_layout.addWidget(self.botao_corte)
-        layout.addLayout(modos_layout)
+        self.botao_superficie.setChecked(True)  # Default ativo
 
-        # Eixos
-        self.label_eixo = QLabel("Orientação do corte", objectName="rotulo")
-        layout.addWidget(self.label_eixo)
-        eixos_layout = QHBoxLayout()
+        self.grupo_modos = QButtonGroup(self)
+        self.grupo_modos.setExclusive(True)
+        self.grupo_modos.addButton(self.botao_superficie)
+        self.grupo_modos.addButton(self.botao_corte)
+        linha_modos.addWidget(self.botao_superficie)
+        linha_modos.addWidget(self.botao_corte)
+        lateral.addLayout(linha_modos)
+
+        # ====== FERRAMENTAS DE CORTE ======
+        self.label_orientacao_corte = QLabel("Orientacao do corte", objectName="rotulo")
+        lateral.addWidget(self.label_orientacao_corte)
+
+        # Botões X, Y, Z
+        linha_eixos = QHBoxLayout()
         self.grupo_eixos = QButtonGroup(self)
         self.grupo_eixos.setExclusive(True)
         self.botoes_eixos = []
         for eixo in ("x", "y", "z"):
-            btn = QPushButton(eixo.upper())
-            btn.setCheckable(True)
-            btn.setChecked(eixo == "y")
-            btn.clicked.connect(lambda checked, e=eixo: self.eixo_alterado.emit(e))
-            self.grupo_eixos.addButton(btn)
-            eixos_layout.addWidget(btn)
-            self.botoes_eixos.append(btn)
-        layout.addLayout(eixos_layout)
+            botao = QPushButton(eixo.upper())
+            botao.setCheckable(True)
+            botao.setChecked(eixo == "y")
+            botao.setProperty("eixo", eixo)
+            self.grupo_eixos.addButton(botao)
+            linha_eixos.addWidget(botao)
+            self.botoes_eixos.append(botao)
+        lateral.addLayout(linha_eixos)
 
-        # Posição do plano
-        self.label_posicao = QLabel("Posição do plano", objectName="rotulo")
-        layout.addWidget(self.label_posicao)
+        # Controlo de profundidade de corte
+        self.label_posicao_plano = QLabel("Posicao do plano", objectName="rotulo")
+        lateral.addWidget(self.label_posicao_plano)
 
-        self.slider_corte = QSlider(Qt.Horizontal)
+        self.slider_corte = QSlider(Qt.Orientation.Horizontal)
         self.slider_corte.setRange(0, 1000)
-        self.slider_corte.setValue(500)
+        self.slider_corte.setValue(500)  # Inicial no centro
         self.slider_corte.setSingleStep(1)
         self.slider_corte.setPageStep(10)
-        self.slider_corte.valueChanged.connect(self._slider_alterado)
-        layout.addWidget(self.slider_corte)
+        lateral.addWidget(self.slider_corte)
 
         self.posicao_corte = QDoubleSpinBox()
         self.posicao_corte.setDecimals(3)
         self.posicao_corte.setSuffix(" m")
         self.posicao_corte.setKeyboardTracking(False)
-        self.posicao_corte.valueChanged.connect(self._posicao_alterada)
-        layout.addWidget(self.posicao_corte)
+        lateral.addWidget(self.posicao_corte)
 
-        self.label_limites = QLabel("Limites: --", objectName="ajuda")
-        layout.addWidget(self.label_limites)
+        self.intervalo_corte = QLabel("Limites do corte: --", objectName="ajuda")
+        lateral.addWidget(self.intervalo_corte)
 
-        # Checkboxes
+        self.botao_repor_corte = QPushButton("Repor corte ao centro")
+        lateral.addWidget(self.botao_repor_corte)
+
+        # ====== OPÇÕES DE RENDERIZAÇÃO ======
         self.mostrar_contornos = QCheckBox("Mostrar curvas de potencial")
         self.mostrar_contornos.setChecked(True)
-        self.mostrar_contornos.toggled.connect(self.mostrar_contornos_alterado.emit)
-        layout.addWidget(self.mostrar_contornos)
+        lateral.addWidget(self.mostrar_contornos)
 
-        self.mostrar_setas = QCheckBox("Mostrar campo elétrico")
-        self.mostrar_setas.toggled.connect(self.mostrar_setas_alterado.emit)
-        layout.addWidget(self.mostrar_setas)
+        self.mostrar_setas = QCheckBox("Mostrar campo eletrico")
+        lateral.addWidget(self.mostrar_setas)
 
         self.mostrar_malha = QCheckBox("Mostrar arestas da malha")
-        self.mostrar_malha.setChecked(True)
-        self.mostrar_malha.toggled.connect(self.mostrar_malha_alterado.emit)
-        layout.addWidget(self.mostrar_malha)
+        lateral.addWidget(self.mostrar_malha)
 
-        # Separador RESULTADO
-        layout.addSpacing(8)
-        layout.addWidget(self._separador("RESULTADO"))
+        # ====== INDICADORES DE RESULTADO ======
+        lateral.addSpacing(8)
+        lateral.addWidget(self._separador("RESULTADO"))
+        self.indicadores = {}
+        for chave, texto in (("resistencia", "Resistencia"), ("corrente", "Corrente"),
+                             ("nos", "Nos"), ("elementos", "Elementos")):
+            caixa = QLabel(f"<span>{texto}</span><b>--</b>", objectName="indicador")
+            caixa.setTextFormat(Qt.TextFormat.RichText)
+            self.indicadores[chave] = caixa
+            lateral.addWidget(caixa)
 
-        # Indicadores
-        self.indicadores: dict[str, QLabel] = {}
-        for chave, texto in (
-            ("resistencia", "Resistência"),
-            ("corrente", "Corrente"),
-            ("nos", "Nós"),
-            ("elementos", "Elementos"),
-        ):
-            label = QLabel(f"<span>{texto}</span><b>--</b>", objectName="indicador")
-            label.setTextFormat(Qt.RichText)
-            self.indicadores[chave] = label
-            layout.addWidget(label)
+        lateral.addStretch(1)
 
-        # Espaço flexível
-        layout.addStretch(1)
+        # ====== BARRA DE ESTADO ======
+        self.estado = QLabel("Pronto para calcular", objectName="estado")
+        self.estado.setWordWrap(True)
+        lateral.addWidget(self.estado)
 
-    # ---- Métodos auxiliares ----
-    def _separador(self, texto: str) -> QLabel:
-        label = QLabel(texto, objectName="separador")
-        return label
+        # Fechar hierarquia
+        scroll_area.setWidget(conteudo_painel)
+        painel_layout.addWidget(scroll_area)
 
-    def _adicionar_campo_ficheiro(self, layout, titulo, valor_inicial, callback):
+    def _campo_ficheiro(self, titulo: str, valor: str, acao) -> tuple[QWidget, QLineEdit]:
+        """
+        Gera o widget combinado para escolher um ficheiro (Label + Caixa de Texto + Botão).
+
+        :param titulo: Texto descritivo acima do campo.
+        :param valor: Caminho inicial (default) na caixa de texto.
+        :param acao: Função/Slot conectada ao clique do botão.
+        :return: Tuplo contendo o widget contentor e o ponteiro para a QLineEdit.
+        """
+        contentor = QWidget()
+        layout = QVBoxLayout(contentor)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
         layout.addWidget(QLabel(titulo, objectName="rotulo"))
+
         linha = QHBoxLayout()
-        campo = QLineEdit(valor_inicial)
+        campo = QLineEdit(valor)
         campo.setReadOnly(True)
-        campo.setObjectName("campo_ficheiro")
         botao = QPushButton("Abrir")
-        botao.clicked.connect(callback)
+        botao.clicked.connect(acao)
+
         linha.addWidget(campo, 1)
         linha.addWidget(botao)
         layout.addLayout(linha)
 
-    def _escolher_pontos(self):
-        caminho, _ = QFileDialog.getOpenFileName(
-            self, "Selecionar ficheiro de nós", self.caminho_pontos, "Texto (*.txt)"
-        )
+        return contentor, campo
+
+    @staticmethod
+    def _separador(texto: str) -> QLabel:
+        """Retorna uma Label estilizada como título de secção."""
+        return QLabel(texto, objectName="separador")
+
+    def escolher_pontos(self) -> None:
+        """Abre a janela de diálogo para selecionar ficheiro de nós."""
+        caminho, _ = QFileDialog.getOpenFileName(self, "Selecionar ficheiro de nos", self.caminho_pontos.text(),
+                                                 "Texto (*.txt)")
         if caminho:
-            self.caminho_pontos = caminho
-            self._atualizar_campo_ficheiro("pontos", caminho)
+            self.caminho_pontos.setText(caminho)
 
-    def _escolher_elementos(self):
-        caminho, _ = QFileDialog.getOpenFileName(
-            self, "Selecionar ficheiro de elementos", self.caminho_elementos, "Texto (*.txt)"
-        )
+    def escolher_elementos(self) -> None:
+        """Abre a janela de diálogo para selecionar ficheiro de elementos."""
+        caminho, _ = QFileDialog.getOpenFileName(self, "Selecionar ficheiro de elementos",
+                                                 self.caminho_elementos.text(), "Texto (*.txt)")
         if caminho:
-            self.caminho_elementos = caminho
-            self._atualizar_campo_ficheiro("elementos", caminho)
-
-    def _atualizar_campo_ficheiro(self, tipo: str, caminho: str):
-        for child in self.findChildren(QLineEdit):
-            if child.objectName() == f"campo_{tipo}":
-                child.setText(caminho)
-                break
-
-    # ---- Métodos públicos ----
-    def obter_caminhos(self) -> tuple[str, str]:
-        return self.caminho_pontos, self.caminho_elementos
-
-    def definir_botao_calcular_habilitado(self, habilitado: bool) -> None:
-        self.botao_calcular.setEnabled(habilitado)
-
-    def definir_limites_corte(self, limite_min: float, limite_max: float) -> None:
-        self._limite_min = limite_min
-        self._limite_max = limite_max
-        self.label_limites.setText(f"Limites: {limite_min:.3f} a {limite_max:.3f} m")
-        self.posicao_corte.setRange(limite_min, limite_max)
-        self.posicao_corte.setSingleStep((limite_max - limite_min) / 1000)
-        self.slider_corte.setValue(500)
-        self._slider_alterado(500)
-
-    def atualizar_indicadores(self, resistencia: Optional[float], corrente: Optional[float],
-                              num_nos: int, num_elementos: int) -> None:
-        """
-        Atualiza os indicadores de resultado.
-
-        :param resistencia: Resistência em ohms (pode ser None).
-        :param corrente: Corrente em amperes (pode ser None).
-        :param num_nos: Número de nós.
-        :param num_elementos: Número de elementos.
-        """
-        valores = {
-            "resistencia": formatar(resistencia, "Ω"),
-            "corrente": formatar(corrente, "A"),
-            "nos": str(num_nos),
-            "elementos": str(num_elementos),
-        }
-        nomes = {"resistencia": "Resistência", "corrente": "Corrente", "nos": "Nós", "elementos": "Elementos"}
-        for chave, valor in valores.items():
-            self.indicadores[chave].setText(f"<span>{nomes[chave]}</span><br><b>{valor}</b>")
-
-    # ---- Slots internos ----
-    def _slider_alterado(self, valor: int):
-        frac = valor / 1000.0
-        pos = self._limite_min + frac * (self._limite_max - self._limite_min)
-        self.posicao_corte.blockSignals(True)
-        self.posicao_corte.setValue(pos)
-        self.posicao_corte.blockSignals(False)
-        self.posicao_corte_alterada.emit(pos)
-
-    def _posicao_alterada(self, pos: float):
-        self.posicao_corte_alterada.emit(pos)
-
-    def _atualizar_visibilidade_corte(self, visivel: bool):
-        self.label_eixo.setVisible(visivel)
-        for btn in self.botoes_eixos:
-            btn.setVisible(visivel)
-        self.label_posicao.setVisible(visivel)
-        self.slider_corte.setVisible(visivel)
-        self.posicao_corte.setVisible(visivel)
-        self.label_limites.setVisible(visivel)
+            self.caminho_elementos.setText(caminho)

@@ -4,12 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Adicionar módulo visualizer com a área 3D&#10;&#10;- Cria ficheiro visualizer.py com a classe Visualizer3D (QWidget).&#10;- O Visualizer3D contém:&#10;  - Um cabeçalho com título da vista e mensagem de topo.&#10;  - O widget QtInteractor do pyvistaqt para renderização 3D.&#10;  - Botão &quot;Repor câmara&quot; para reposicionar a vista.&#10;- Métodos principais:&#10;  - adicionar_malha: adiciona uma malha VTK com escala de cores.&#10;  - adicionar_eletrodos: marca os nós com potencial fixo.&#10;  - adicionar_corte: mostra uma fatia da malha segundo um eixo.&#10;  - repor_camara: repõe a vista conforme o modo (3D ou corte).&#10;  - guardar_imagem: captura o ecrã e guarda em PNG.&#10;- O main_window instancia o Visualizer3D e integra-o na área direita.&#10;- Adiciona docstrings e type hints.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais.">
+      <change afterPath="$PROJECT_DIR$/fem_ui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user_interface/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user_interface/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/main_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/result_dataclass.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/result_dataclass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user_interface/sidebar.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/sidebar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/styles.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/styles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/viewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/viewer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user_interface/visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/visualizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/worker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,11 +66,12 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "Criacao__da__ui",
-    "last_opened_file_path": "C:/Users/haper/PycharmProjects/FemProcessor/ficheiros"
+    "last_opened_file_path": "C:/Users/haper/PycharmProjects/FemProcessor"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\haper\PycharmProjects\FemProcessor" />
       <recent name="C:\Users\haper\PycharmProjects\FemProcessor\ficheiros" />
     </key>
   </component>
@@ -315,7 +322,39 @@
       <option name="project" value="LOCAL" />
       <updated>1784073301097</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Integrar Visualizer3D e adicionar controlos de visualização na sidebar&#10;&#10;- Substitui o placeholder do viewer pelo Visualizer3D (pyvistaqt) na janela principal.&#10;- Adiciona à Sidebar os controlos:&#10;  - Botões 3D/Corte (com grupo exclusivo)&#10;  - Botões para eixo do corte (X, Y, Z)&#10;  - Slider e QDoubleSpinBox para posição do corte&#10;  - Checkboxes: contornos, setas, arestas&#10;- Liga os sinais da sidebar aos métodos de atualização do visualizador.&#10;- Implementa a lógica de atualização da cena (atualizar_visualizacao) no main_window.&#10;- Adiciona atalhos de teclado (A/D, Shift+A/D, setas, R, P).&#10;- Cria barra de menu Exportar (com placeholders para os itens).&#10;- Corrige o __init__.py para exportar Visualizer3D.&#10;- Remove a referência a Viewer3D (ficheiro mantido mas não usado).">
+      <option name="closed" value="true" />
+      <created>1784074144770</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1784074144770</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Adicionar indicadores de resultado na sidebar&#10;&#10;- Adiciona quatro QLabel na sidebar para mostrar:&#10;  - Resistência (ohm)&#10;  - Corrente (A)&#10;  - Número de nós&#10;  - Número de elementos&#10;- Os indicadores são atualizados após o cálculo através do método `_atualizar_indicadores`.&#10;- Inicialmente mostram &quot;--&quot;.&#10;- Utiliza a função formatar() para apresentar valores com prefixos métricos.&#10;- Adiciona docstrings e type hints nos novos métodos.">
+      <option name="closed" value="true" />
+      <created>1784074426676</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1784074426676</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Implementar exportação de imagem e matriz de rigidez&#10;&#10;- Exportação de imagem já existente (PNG).&#10;- Implementa exportação da matriz de rigidez em três formatos:&#10;  - NPZ esparso (scipy.sparse.save_npz)&#10;  - Matrix Market (scipy.io.mmwrite)&#10;  - Texto tabulado (COO: linha, coluna, valor)&#10;- Adiciona método auxiliar `_garantir_extensao` para adicionar extensão se faltar.&#10;- Substitui placeholders pelos métodos reais.&#10;- Adiciona docstrings e tratamento de erros.">
+      <option name="closed" value="true" />
+      <created>1784074468300</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1784074468300</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais.">
+      <option name="closed" value="true" />
+      <created>1784074527077</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1784074527077</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -342,10 +381,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="adicao do mapeamento de condicoes de fronteira&#10;Extensao da leitura de nos para inspecionar a 4a coluna. Implementado um dicionario que armazena o indice do no e a respetiva voltagem (Dirichlet) ignorando valores -1.0 (nos livres)." />
-    <MESSAGE value="integracao do modulo io_utils no script principal&#10;Atualizacao do main.py apos o merge da vertente de I/O. Substituicao da estrutura passiva pela invocacao real das funcoes de leitura. Adicionada validacao de caminhos de ficheiros (os.path) e impressao de estatisticas de controlo da malha na consola. O sistema orquestrador ja e capaz de extrair a geometria e aguarda a implementacao do motor de resolucao (fem_solver)." />
-    <MESSAGE value="implementacao da formulacao matematica da matriz local 4x4&#10;Substituicao da estrutura vazia na funcao 'matriz_local_tetraedro' pelo algoritmo analitico de resolucao de um elemento finito. Implementado o calculo da matriz Jacobiana, das derivadas das funcoes de forma espaciais e a validacao geometrica do volume do tetraedro. A funcao ja devolve a matriz de condutividade local pronta a ser mapeada." />
-    <MESSAGE value="alocacao dinamica da matriz de rigidez global esparsa&#10;Implementada a logica de montagem iterativa na funcao 'montar_matriz_global'. O sistema realiza o mapeamento das matrizes locais 4x4 e distribui os contributos por tres listas unidimensionais, criando em seguida a matriz global no formato esparso Compressed Sparse Row (CSR) da biblioteca SciPy. Esta refatoracao evita o uso de matrizes densas NumPy (zeros alocados) prevenindo falhas de memoria RAM." />
     <MESSAGE value="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos." />
     <MESSAGE value="conversao vtk e renderizacao 3d do mapa de potenciais&#10;Implementacao das funcoes 'preparar_malha_vtk' e 'visualizar_resultados_3d'. Adicionada a logica de traducao de arrays NumPy para grelhas nao estruturadas (UnstructuredGrid) do motor VTK (codigo 10 para tetraedros). Criacao da janela base de renderizacao com o mapa de cores (cmap='jet') para analise global das tensoes eletricas no solo." />
     <MESSAGE value="implementacao do painel interativo de pos-processamento 3D&#10;Substituicao do placeholder em 'visualizar_corte_interativo' pelo modulo avancado PyVista. Adicionadas as rotinas de extracao de curvas equipotenciais (isosurfaces), glifos vetoriais (setas de campo eletrico) e os atalhos de teclado (key events) para controlo total da camara e do plano de corte dinâmico. Inclusao do HUD com instrucoes no ecra e funcao de screenshot para relatorios." />
@@ -367,6 +402,10 @@
     <MESSAGE value="Adicionar painel lateral com campos de ficheiro e botão Calcular&#10;&#10;- Cria ficheiro sidebar.py com a classe Sidebar (QWidget).&#10;- O Sidebar contém:&#10;  - Título e subtítulo da aplicação.&#10;  - Campos para selecionar os ficheiros de pontos e elementos (com botões &quot;Abrir&quot;).&#10;  - Botão &quot;Calcular simulação&quot; (ligado a um sinal personalizado).&#10;  - Separadores estilizados.&#10;- A Sidebar emite o sinal `calcular_clicked` quando o botão é pressionado.&#10;- Adiciona os métodos `escolher_pontos` e `escolher_elementos` para abrir diálogos.&#10;- O main_window instancia o Sidebar e integra-o na janela.&#10;- Adiciona docstrings e type hints." />
     <MESSAGE value="Adicionar área de visualização 3D com pyvistaqt&#10;&#10;- Cria o ficheiro viewer.py com a classe Viewer3D (QWidget).&#10;- O Viewer3D contém um QtInteractor (pyvista) e uma barra de cabeçalho.&#10;- Adiciona métodos para:&#10;  - mostrar mensagens no cabeçalho&#10;  - adicionar malha, pontos, etc.&#10;  - repor a câmara (3D isométrica ou corte)&#10;  - guardar imagem&#10;- A classe Viewer3D emite sinais para eventos de interação (se necessário).&#10;- Integra o Viewer3D na JanelaMEF (substituindo o placeholder).&#10;- Adiciona docstrings completas." />
     <MESSAGE value="Adicionar módulo visualizer com a área 3D&#10;&#10;- Cria ficheiro visualizer.py com a classe Visualizer3D (QWidget).&#10;- O Visualizer3D contém:&#10;  - Um cabeçalho com título da vista e mensagem de topo.&#10;  - O widget QtInteractor do pyvistaqt para renderização 3D.&#10;  - Botão &quot;Repor câmara&quot; para reposicionar a vista.&#10;- Métodos principais:&#10;  - adicionar_malha: adiciona uma malha VTK com escala de cores.&#10;  - adicionar_eletrodos: marca os nós com potencial fixo.&#10;  - adicionar_corte: mostra uma fatia da malha segundo um eixo.&#10;  - repor_camara: repõe a vista conforme o modo (3D ou corte).&#10;  - guardar_imagem: captura o ecrã e guarda em PNG.&#10;- O main_window instancia o Visualizer3D e integra-o na área direita.&#10;- Adiciona docstrings e type hints." />
-    <option name="LAST_COMMIT_MESSAGE" value="Adicionar módulo visualizer com a área 3D&#10;&#10;- Cria ficheiro visualizer.py com a classe Visualizer3D (QWidget).&#10;- O Visualizer3D contém:&#10;  - Um cabeçalho com título da vista e mensagem de topo.&#10;  - O widget QtInteractor do pyvistaqt para renderização 3D.&#10;  - Botão &quot;Repor câmara&quot; para reposicionar a vista.&#10;- Métodos principais:&#10;  - adicionar_malha: adiciona uma malha VTK com escala de cores.&#10;  - adicionar_eletrodos: marca os nós com potencial fixo.&#10;  - adicionar_corte: mostra uma fatia da malha segundo um eixo.&#10;  - repor_camara: repõe a vista conforme o modo (3D ou corte).&#10;  - guardar_imagem: captura o ecrã e guarda em PNG.&#10;- O main_window instancia o Visualizer3D e integra-o na área direita.&#10;- Adiciona docstrings e type hints." />
+    <MESSAGE value="Integrar Visualizer3D e adicionar controlos de visualização na sidebar&#10;&#10;- Substitui o placeholder do viewer pelo Visualizer3D (pyvistaqt) na janela principal.&#10;- Adiciona à Sidebar os controlos:&#10;  - Botões 3D/Corte (com grupo exclusivo)&#10;  - Botões para eixo do corte (X, Y, Z)&#10;  - Slider e QDoubleSpinBox para posição do corte&#10;  - Checkboxes: contornos, setas, arestas&#10;- Liga os sinais da sidebar aos métodos de atualização do visualizador.&#10;- Implementa a lógica de atualização da cena (atualizar_visualizacao) no main_window.&#10;- Adiciona atalhos de teclado (A/D, Shift+A/D, setas, R, P).&#10;- Cria barra de menu Exportar (com placeholders para os itens).&#10;- Corrige o __init__.py para exportar Visualizer3D.&#10;- Remove a referência a Viewer3D (ficheiro mantido mas não usado)." />
+    <MESSAGE value="Adicionar indicadores de resultado na sidebar&#10;&#10;- Adiciona quatro QLabel na sidebar para mostrar:&#10;  - Resistência (ohm)&#10;  - Corrente (A)&#10;  - Número de nós&#10;  - Número de elementos&#10;- Os indicadores são atualizados após o cálculo através do método `_atualizar_indicadores`.&#10;- Inicialmente mostram &quot;--&quot;.&#10;- Utiliza a função formatar() para apresentar valores com prefixos métricos.&#10;- Adiciona docstrings e type hints nos novos métodos." />
+    <MESSAGE value="Implementar exportação de imagem e matriz de rigidez&#10;&#10;- Exportação de imagem já existente (PNG).&#10;- Implementa exportação da matriz de rigidez em três formatos:&#10;  - NPZ esparso (scipy.sparse.save_npz)&#10;  - Matrix Market (scipy.io.mmwrite)&#10;  - Texto tabulado (COO: linha, coluna, valor)&#10;- Adiciona método auxiliar `_garantir_extensao` para adicionar extensão se faltar.&#10;- Substitui placeholders pelos métodos reais.&#10;- Adiciona docstrings e tratamento de erros." />
+    <MESSAGE value="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais." />
   </component>
 </project>

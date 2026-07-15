@@ -1,334 +1,152 @@
 """
-visualizer.py
-=============
-Define a área de visualização 3D usando PyVista.
-
-Esta classe encapsula o widget QtInteractor e oferece métodos para
-adicionar malhas, cortes, eléctrodos e controlar a câmara.
+Módulo gestor do motor gráfico PyVista. Aplica cores, fatia a malha e traça setas.
 """
-
-from __future__ import annotations
-
-import os
-from typing import Optional, Tuple, List, Dict, Any
-
 import numpy as np
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
-from pyvistaqt import QtInteractor
-import pyvista as pv
-
-# Importação do módulo de visualização do projecto (para preparar a malha VTK)
-import visualization as vis_lib
 
 
-class Visualizer3D(QWidget):
+class VisualizerManager:
     """
-    Widget que contém a área 3D de visualização.
-
-    :param parent: Widget pai (normalmente a janela principal).
+    Encapsula toda a lógica de plotagem gráfica para não poluir a janela principal.
+    Decide que tipo de filtro aplicar (Surface ou Slice) com base no modo selecionado.
     """
 
-    # Sinal emitido quando o utilizador pede para repor a câmara
-    repor_camara_clicked = Signal()
-
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
-
-        # Estado interno
-        self.malha = None          # pyvista.UnstructuredGrid
-        self.resultado = None      # ResultadoMEF (para acesso aos dados)
-        self.modo: str = "superficie"   # "superficie" ou "corte"
-        self.eixo_corte: str = "y"      # "x", "y" ou "z"
-        self.posicao_corte: float = 0.0  # posição actual do plano
-
-        # Opções de visualização
-        self.mostrar_contornos: bool = True
-        self.mostrar_setas: bool = False
-        self.mostrar_arestas: bool = True
-
-        self._setup_ui()
-
-    def _setup_ui(self) -> None:
-        """Constrói a interface do visualizador."""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        # Cabeçalho
-        cabecalho = QWidget(objectName="cabecalho")
-        cabecalho_layout = QHBoxLayout(cabecalho)
-        cabecalho_layout.setContentsMargins(22, 12, 18, 12)
-
-        self.titulo_vista = QLabel("Vista 3D do potencial", objectName="titulo_vista")
-        self.mensagem_topo = QLabel("Pronto para calcular", objectName="mensagem_topo")
-        self.mensagem_topo.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        cabecalho_layout.addWidget(self.titulo_vista)
-        cabecalho_layout.addWidget(self.mensagem_topo, 1)
-
-        self.botao_repor = QPushButton("Repor câmara")
-        self.botao_repor.clicked.connect(self.repor_camara_clicked.emit)
-        cabecalho_layout.addWidget(self.botao_repor)
-
-        layout.addWidget(cabecalho)
-
-        # Área 3D (QtInteractor)
-        self.plotter = QtInteractor(self)
-        self.plotter.interactor.setFocusPolicy(Qt.StrongFocus)
-        self.plotter.set_background("#101827", top="#172238")
-        self.plotter.add_text(
-            "Carregue uma malha e calcule para iniciar.",
-            position="upper_left",
-            font_size=13,
-            color="#cbd5e1"
-        )
-        self.plotter.add_axes(color="#cbd5e1")
-
-        layout.addWidget(self.plotter.interactor)
-
-    # ------------------------------------------------------------------
-    # Métodos públicos para actualizar a visualização
-    # ------------------------------------------------------------------
-
-    def definir_dados(self, resultado, malha_vtk) -> None:
+    def __init__(self, visualizador):
         """
-        Define os dados a visualizar.
+        :param visualizador: Instância de QtInteractor do PyVista onde se desenha.
+        """
+        self.visualizador = visualizador
 
-        :param resultado: Objecto ResultadoMEF.
-        :param malha_vtk: Malha VTK (pyvista.UnstructuredGrid) com os dados.
+    def atualizar_visualizacao(self, malha, resultado, modo, eixo_corte, origem_corte,
+                               mostrar_malha, mostrar_contornos, mostrar_setas,
+                               repor_vista=False, mensagem_callback=None):
         """
-        self.resultado = resultado
-        self.malha = malha_vtk
+        Limpa a tela e desenha de novo a malha baseada no estado atual das checkboxes e sliders.
 
-    def definir_modo(self, modo: str) -> None:
+        :param malha: Estrutura vtkUnstructuredGrid gerada pelo PyVista.
+        :param resultado: Dataclass ResultadoMEF com os potenciais numéricos.
+        :param modo: 'superficie' (Vista 3D) ou 'corte' (Fatia plana).
+        :param eixo_corte: Eixo geométrico em uso ('x', 'y' ou 'z').
+        :param origem_corte: Tuplo (x,y,z) designando o centro do plano de corte.
+        :param mostrar_malha: Boolean - Traçar as linhas pretas dos tetraedros?
+        :param mostrar_contornos: Boolean - Traçar linhas isopotenciais (Curvas de Nível)?
+        :param mostrar_setas: Boolean - Traçar o fluxo de Campo Elétrico?
+        :param repor_vista: Boolean - Reenquadrar as câmaras no final do desenho?
+        :param mensagem_callback: Função para atualizar o texto do topo da interface.
         """
-        Define o modo de visualização: "superficie" ou "corte".
-        """
-        self.modo = modo
-        self._atualizar_titulo()
-        self.atualizar()
-
-    def definir_eixo_corte(self, eixo: str) -> None:
-        """
-        Define o eixo de corte: "x", "y" ou "z".
-        """
-        self.eixo_corte = eixo
-        self.atualizar()
-
-    def definir_posicao_corte(self, posicao: float) -> None:
-        """
-        Define a posição do plano de corte.
-        """
-        self.posicao_corte = posicao
-        self.atualizar()
-
-    def definir_opcoes_visualizacao(self, contornos: bool, setas: bool, arestas: bool) -> None:
-        """
-        Define as opções de visualização.
-
-        :param contornos: Mostrar curvas de potencial.
-        :param setas: Mostrar setas do campo eléctrico.
-        :param arestas: Mostrar arestas da malha.
-        """
-        self.mostrar_contornos = contornos
-        self.mostrar_setas = setas
-        self.mostrar_arestas = arestas
-        self.atualizar()
-
-    def atualizar(self, repor_vista: bool = False) -> None:
-        """
-        Actualiza a cena 3D com os dados actuais.
-
-        :param repor_vista: Se True, repõe a câmara para a posição padrão.
-        """
-        if self.malha is None or self.resultado is None:
+        if malha is None or resultado is None:
             return
 
-        # Guardar posição da câmara (se não for para repor)
+        # Guarda as posições da câmara para não dar um 'salto' quando a malha faz update
         posicao_camara = None
         projecao_paralela = False
         if not repor_vista:
             try:
-                posicao_camara = self.plotter.camera_position
-                projecao_paralela = bool(self.plotter.camera.GetParallelProjection())
+                posicao_camara = self.visualizador.camera_position
+                projecao_paralela = bool(self.visualizador.camera.GetParallelProjection())
             except Exception:
                 pass
 
-        # Limpar a cena
-        self.plotter.clear()
+        # Limpar o canvas
+        self.visualizador.clear()
 
-        # Configurações comuns
-        minimo = float(np.min(self.resultado.potenciais))
-        maximo = float(np.max(self.resultado.potenciais))
-        args_comuns = {
-            "scalars": "Potencial (V)",
-            "cmap": "turbo",
-            "clim": (minimo, maximo),
-            "show_edges": self.mostrar_arestas,
-            "scalar_bar_args": {
-                "title": "Potencial (V)",
-                "color": "white",
-                "vertical": False,
-                "position_x": 0.35,
-                "position_y": 0.03,
-            },
-        }
+        minimo = float(np.min(resultado.potenciais))
+        maximo = float(np.max(resultado.potenciais))
 
-        # Renderização conforme o modo
-        if self.modo == "superficie":
-            self.plotter.add_mesh(self.malha, **args_comuns)
-            self.mensagem_topo.setText("Vista 3D: a superfície exterior mostra o potencial na fronteira da malha.")
-        else:  # corte
-            normal = {"x": (1, 0, 0), "y": (0, 1, 0), "z": (0, 0, 1)}[self.eixo_corte]
-            origem = self._obter_origem_corte()
-            fatia = self.malha.slice(normal=normal, origin=origem)
+        # Argumentos comuns que vão ser partilhados quer pelo corte quer pela 3D
+        comuns = dict(
+            scalars="Potencial (V)", cmap="turbo", clim=(minimo, maximo),
+            show_edges=mostrar_malha,
+            scalar_bar_args={"title": "Potencial (V)", "color": "white",
+                             "vertical": False, "position_x": 0.35, "position_y": 0.03}
+        )
 
-            # Outline da malha
-            self.plotter.add_mesh(self.malha.outline(), color="#9fb0c9", line_width=1.2)
+        if modo == "superficie":
+            # Plot da casca exterior
+            self.visualizador.add_mesh(malha, **comuns)
+            if mensagem_callback:
+                mensagem_callback("Vista 3D: a superficie exterior mostra o potencial na fronteira da malha.")
+        else:
+            # Corte Interno
+            normal = {"x": (1, 0, 0), "y": (0, 1, 0), "z": (0, 0, 1)}[eixo_corte]
+            fatia = malha.slice(normal=normal, origin=origem_corte)
+
+            # Adiciona o wireframe fantasma da caixa total
+            self.visualizador.add_mesh(malha.outline(), color="#9fb0c9", line_width=1.2)
 
             if fatia.n_points:
-                self.plotter.add_mesh(fatia, opacity=0.92, **args_comuns)
+                self.visualizador.add_mesh(fatia, opacity=0.92, **comuns)
 
-                # Curvas de contorno
-                if self.mostrar_contornos:
+                # Curvas Isopotenciais (Brancas)
+                if mostrar_contornos:
                     curvas = fatia.contour(scalars="Potencial (V)", isosurfaces=18)
-                    self.plotter.add_mesh(curvas, color="white", line_width=1.5)
+                    self.visualizador.add_mesh(curvas, color="white", line_width=1.5)
 
-                # Setas do campo eléctrico
-                if self.mostrar_setas and "Campo eletrico (V/m)" in fatia.cell_data:
-                    escala = self.malha.length * 0.025
-                    setas = fatia.cell_centers().glyph(
-                        orient="Campo eletrico (V/m)",
-                        scale=False,
-                        factor=escala
-                    )
-                    self.plotter.add_mesh(setas, color="#111827")
+                # Setas Vectoriais do Campo Elétrico (Escuras)
+                if mostrar_setas and "Campo eletrico (V/m)" in fatia.cell_data:
+                    escala = malha.length * 0.025
+                    setas = fatia.cell_centers().glyph(orient="Campo eletrico (V/m)", scale=False, factor=escala)
+                    self.visualizador.add_mesh(setas, color="#111827")
 
-            self.mensagem_topo.setText(
-                f"Corte {self.eixo_corte.upper()}: use os controlos laterais para mover o plano."
-            )
+            if mensagem_callback:
+                mensagem_callback(f"Corte {eixo_corte.upper()}: use A/D, setas, botoes laterais ou a posicao exata.")
 
-        # Adicionar eléctrodos
-        self._adicionar_eletrodos()
+        # Eletrodos (Bateria e Terra)
+        self._adicionar_eletrodos(resultado)
+        self.visualizador.add_axes(color="#cbd5e1")
 
-        # Eixos
-        self.plotter.add_axes(color="#cbd5e1")
-
-        # Restaurar ou repor câmara
+        # Repor ou restaurar a Câmara visual
         if repor_vista:
-            self.repor_camara(mostrar_mensagem=False)
+            self.repor_camara(modo, eixo_corte, mostrar_mensagem=False)
         elif posicao_camara is not None:
-            self.plotter.camera_position = posicao_camara
+            self.visualizador.camera_position = posicao_camara
             if projecao_paralela:
-                self.plotter.enable_parallel_projection()
+                self.visualizador.enable_parallel_projection()
             else:
-                self.plotter.disable_parallel_projection()
+                self.visualizador.disable_parallel_projection()
 
-        self.plotter.render()
+        self.visualizador.render()
 
-    def repor_camara(self, mostrar_mensagem: bool = True) -> None:
+    def _adicionar_eletrodos(self, resultado):
         """
-        Repõe a câmara para a posição padrão conforme o modo.
+        Adiciona esferas de marcação nos nós que contêm voltagens fixas (bateria).
 
-        :param mostrar_mensagem: Se True, actualiza a mensagem de topo.
+        :param resultado: Instância de ResultadoMEF.
         """
-        if self.modo == "corte":
-            if self.eixo_corte == "x":
-                self.plotter.view_yz()
-            elif self.eixo_corte == "y":
-                self.plotter.view_xz()
+        vmax = max(resultado.condicoes.values())
+        vmin = min(resultado.condicoes.values())
+
+        positivos = [no for no, valor in resultado.condicoes.items() if valor == vmax]
+        negativos = [no for no, valor in resultado.condicoes.items() if valor == vmin]
+
+        # Bateria (+) a Vermelho
+        self.visualizador.add_points(resultado.nos[positivos], color="#ff5c5c", point_size=10,
+                                     render_points_as_spheres=True, label="Eletrodo (+)")
+        # Referência (-) a Azul
+        self.visualizador.add_points(resultado.nos[negativos], color="#5f8dff", point_size=6,
+                                     render_points_as_spheres=True, label="Referencia (0 V)")
+
+    def repor_camara(self, modo, eixo_corte, mostrar_mensagem=True, mensagem_callback=None):
+        """
+        Reposiciona a câmara perfeitamente plana num eixo ortogonal de corte
+        ou num aspeto isométrico livre para superfícies.
+
+        :param modo: 'superficie' ou 'corte'.
+        :param eixo_corte: 'x', 'y', 'z'.
+        """
+        if modo == "corte":
+            if eixo_corte == "x":
+                self.visualizador.view_yz()
+            elif eixo_corte == "y":
+                self.visualizador.view_xz()
             else:
-                self.plotter.view_xy()
-            self.plotter.enable_parallel_projection()
+                self.visualizador.view_xy()
+            self.visualizador.enable_parallel_projection()  # Desliga a perspetiva visual
         else:
-            self.plotter.view_isometric()
-            self.plotter.disable_parallel_projection()
+            self.visualizador.view_isometric()
+            self.visualizador.disable_parallel_projection()
 
-        self.plotter.reset_camera()
-        self.plotter.render()
+        self.visualizador.reset_camera()
+        self.visualizador.render()
 
-        if mostrar_mensagem:
-            self.mensagem_topo.setText("Câmara reposta.")
-
-    def guardar_imagem(self, caminho: str) -> None:
-        """
-        Guarda a imagem actual num ficheiro PNG.
-
-        :param caminho: Caminho completo para o ficheiro de saída.
-        """
-        if self.malha is None:
-            return
-        self.plotter.screenshot(caminho, transparent_background=False)
-        self.mensagem_topo.setText(f"Imagem guardada: {os.path.basename(caminho)}")
-
-    # ------------------------------------------------------------------
-    # Métodos auxiliares
-    # ------------------------------------------------------------------
-
-    def _obter_origem_corte(self) -> Tuple[float, float, float]:
-        """
-        Calcula o ponto de origem do plano de corte (centro da malha,
-        com a coordenada do eixo ajustada para self.posicao_corte).
-        """
-        if self.malha is None:
-            return (0.0, 0.0, 0.0)
-        centro = self.malha.center
-        indices = {"x": 0, "y": 1, "z": 2}
-        origem = list(centro)
-        origem[indices[self.eixo_corte]] = self.posicao_corte
-        return tuple(origem)
-
-    def _adicionar_eletrodos(self) -> None:
-        """Adiciona pontos para os eléctrodos (nós com potencial fixo)."""
-        if self.resultado is None:
-            return
-
-        condicoes = self.resultado.condicoes
-        if not condicoes:
-            return
-
-        vmax = max(condicoes.values())
-        vmin = min(condicoes.values())
-        positivos = [no for no, v in condicoes.items() if v == vmax]
-        negativos = [no for no, v in condicoes.items() if v == vmin]
-
-        if positivos:
-            self.plotter.add_points(
-                self.resultado.nos[positivos],
-                color="#ff5c5c",
-                point_size=10,
-                render_points_as_spheres=True,
-                label="Eletrodo (+)",
-            )
-        if negativos:
-            self.plotter.add_points(
-                self.resultado.nos[negativos],
-                color="#5f8dff",
-                point_size=6,
-                render_points_as_spheres=True,
-                label="Referência (0 V)",
-            )
-
-    def _atualizar_titulo(self) -> None:
-        """Actualiza o título da vista conforme o modo."""
-        if self.modo == "corte":
-            self.titulo_vista.setText("Corte interativo")
-        else:
-            self.titulo_vista.setText("Vista 3D do potencial")
-
-    # ------------------------------------------------------------------
-    # Metodo para criar malha VTK a partir de dados NumPy
-    # ------------------------------------------------------------------
-    def criar_malha_vtk(self, nos: np.ndarray, elementos: np.ndarray) -> pv.UnstructuredGrid:
-        """
-        Cria uma malha VTK (UnstructuredGrid) a partir dos nós e elementos.
-
-        :param nos: Coordenadas dos nós (N×3).
-        :param elementos: Conectividade dos tetraedros (M×4), índices 0‑based.
-        :return: pyvista.UnstructuredGrid.
-        """
-        # Converte para o formato esperado pelo pyvista:
-        # array (M, 5) onde o primeiro elemento de cada linha é o número de vértices (4)
-        cells = np.hstack([np.full((len(elementos), 1), 4, dtype=int), elementos]).flatten()
-        malha = pv.UnstructuredGrid({pv.CellType.TETRA: cells}, nos)
-        return malha
+        if mostrar_mensagem and mensagem_callback:
+            mensagem_callback("Camara reposta.")

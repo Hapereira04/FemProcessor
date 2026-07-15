@@ -1,45 +1,28 @@
 """
-viewer.py
-=========
-Define a área de visualização 3D baseada em pyvistaqt.
+Módulo para a janela 3D da direita, contendo o wrapper do PyVista.
 """
-
-from __future__ import annotations
-
-from typing import Optional, Any
-
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QPushButton
+from PySide6.QtCore import Qt
 from pyvistaqt import QtInteractor
-import pyvista as pv
 
 
-class Viewer3D(QWidget):
+class ViewerWidget(QWidget):
     """
-    Widget que encapsula o visualizador 3D (pyvista) com cabeçalho.
-
-    :param parent: Widget pai (normalmente a janela principal).
+    Controla o lado direito da interface: o visualizador OpenGL 3D
+    e o menu de atalhos em sobreposição (overlay).
     """
 
-    # Sinal emitido quando o utilizador pede para repor a câmara
-    repor_camara_clicked = Signal()
+    def __init__(self, parent=None):
+        """
+        Constrói o cabeçalho e incorpora o QtInteractor da biblioteca PyVista.
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        :param parent: QWidget pai (geralmente a janela principal).
+        """
         super().__init__(parent)
+        area_layout = QVBoxLayout(self)
+        area_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Estado da visualização
-        self.modo: str = "superficie"      # "superficie" ou "corte"
-        self.eixo_corte: str = "y"
-
-        self._setup_ui()
-
-    def _setup_ui(self) -> None:
-        """Constrói a interface: cabeçalho + visualizador."""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        # ---- Cabeçalho ----
+        # ====== CABEÇALHO DO VISUALIZADOR ======
         cabecalho = QFrame(objectName="cabecalho")
         cabecalho_layout = QHBoxLayout(cabecalho)
         cabecalho_layout.setContentsMargins(22, 12, 18, 12)
@@ -49,141 +32,57 @@ class Viewer3D(QWidget):
 
         self.mensagem_topo = QLabel("Pronto para calcular", objectName="mensagem_topo")
         cabecalho_layout.addWidget(self.mensagem_topo, 1)
+        cabecalho_layout.addStretch(1)
 
-        # Botão Repor câmara
-        botao_repor = QPushButton("Repor câmara")
-        botao_repor.clicked.connect(self.repor_camara_clicked.emit)
-        cabecalho_layout.addWidget(botao_repor)
+        self.botao_repor = QPushButton("Repor camara")
+        cabecalho_layout.addWidget(self.botao_repor)
 
-        layout.addWidget(cabecalho)
+        area_layout.addWidget(cabecalho)
 
-        # ---- Visualizador 3D (pyvista) ----
-        self.plotter = QtInteractor(self)
-        self.plotter.interactor.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        # ====== MOTOR 3D DO PYVISTA ======
+        self.visualizador = QtInteractor(self)
+        self.visualizador.interactor.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.visualizador.set_background("#101827", top="#172238")  # Fundo gradiente
+        self.visualizador.add_text("Carregue uma malha e calcule para iniciar.", position="upper_left", font_size=13,
+                                   color="#cbd5e1")
+        self.visualizador.add_axes(color="#cbd5e1")  # Eixos XYZ no canto
 
-        # Configuração inicial
-        self.plotter.set_background("#101827", top="#172238")
-        self.plotter.add_text(
-            "Carregue uma malha e calcule para iniciar.",
-            position="upper_left",
-            font_size=13,
-            color="#cbd5e1"
-        )
-        self.plotter.add_axes(color="#cbd5e1")
+        corpo_vista = QWidget()
+        corpo_layout = QHBoxLayout(corpo_vista)
+        corpo_layout.setContentsMargins(0, 0, 0, 0)
+        corpo_layout.setSpacing(0)
+        corpo_layout.addWidget(self.visualizador.interactor, 1)
 
-        layout.addWidget(self.plotter.interactor, 1)
+        # ====== NAVEGAÇÃO DE CORTE (VISUAL ON-CANVAS) ======
+        self.navegacao_corte = QFrame(objectName="navegacao")
+        self.navegacao_corte.setFixedWidth(92)
+        nav_layout = QVBoxLayout(self.navegacao_corte)
+        nav_layout.setContentsMargins(12, 18, 12, 18)
+        nav_layout.setSpacing(8)
 
-    # ------------------------------------------------------------
-    # Métodos públicos para controlar a visualização
-    # ------------------------------------------------------------
+        titulo_nav = QLabel("CORTE", objectName="separador")
+        titulo_nav.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        nav_layout.addWidget(titulo_nav)
 
-    def definir_modo(self, modo: str, eixo: Optional[str] = None) -> None:
-        """
-        Define o modo de visualização (superfície ou corte).
+        self.posicao_lateral = QLabel("--", objectName="posicao_lateral")
+        self.posicao_lateral.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        nav_layout.addWidget(self.posicao_lateral)
 
-        :param modo: "superficie" ou "corte".
-        :param eixo: Eixo do corte ("x", "y", "z") – só usado no modo corte.
-        """
-        self.modo = modo
-        if eixo is not None:
-            self.eixo_corte = eixo
-        self.titulo_vista.setText("Corte interativo" if modo == "corte" else "Vista 3D do potencial")
+        # Geração dos botões de passo rápido (+1, +10, etc.)
+        self.botoes_navegacao = []
+        opcoes_passo = (("-10", -10, "Mover 10 passos"), ("-", -1, "Mover 1 passo"),
+                        ("+", 1, "Mover 1 passo"), ("+10", 10, "Mover 10 passos"))
 
-    def mostrar_mensagem(self, texto: str) -> None:
-        """Actualiza a mensagem no topo da área de visualização."""
-        self.mensagem_topo.setText(texto)
+        for texto, passo, dica in opcoes_passo:
+            botao = QPushButton(texto)
+            botao.setToolTip(dica)
+            botao.setProperty("passo", passo)
+            self.botoes_navegacao.append(botao)
+            nav_layout.addWidget(botao)
 
-    def adicionar_malha(self, malha: pv.UnstructuredGrid, **kwargs) -> None:
-        """
-        Adiciona uma malha ao visualizador.
+        ajuda = QLabel("A / D\n1 passo\nShift+A / D\n10 passos", objectName="ajuda")
+        nav_layout.addWidget(ajuda)
+        nav_layout.addStretch(1)
 
-        :param malha: Malha pyvista (UnstructuredGrid) com dados de potencial.
-        :param kwargs: Argumentos adicionais para `add_mesh` (ex: scalars, cmap).
-        """
-        self.plotter.add_mesh(malha, **kwargs)
-
-    def adicionar_pontos(self, pontos: Any, **kwargs) -> None:
-        """Adiciona pontos ao visualizador (ex: eléctrodos)."""
-        self.plotter.add_points(pontos, **kwargs)
-
-    def adicionar_outline(self, malha: pv.UnstructuredGrid, **kwargs) -> None:
-        """Adiciona o contorno da malha."""
-        self.plotter.add_mesh(malha.outline(), **kwargs)
-
-    def adicionar_fatia(self, fatia: pv.PolyData, **kwargs) -> None:
-        """Adiciona uma fatia (corte) ao visualizador."""
-        self.plotter.add_mesh(fatia, **kwargs)
-
-    def adicionar_contornos(self, fatia: pv.PolyData, n_curvas: int = 18, **kwargs) -> None:
-        """Adiciona curvas de contorno a uma fatia."""
-        curvas = fatia.contour(scalars="Potencial (V)", isosurfaces=n_curvas)
-        self.plotter.add_mesh(curvas, **kwargs)
-
-    def adicionar_setas(self, fatia: pv.PolyData, escala: float, **kwargs) -> None:
-        """Adiciona setas do campo eléctrico a uma fatia."""
-        setas = fatia.cell_centers().glyph(
-            orient="Campo eletrico (V/m)",
-            scale=False,
-            factor=escala
-        )
-        self.plotter.add_mesh(setas, **kwargs)
-
-    def adicionar_axes(self) -> None:
-        """Adiciona eixos de coordenadas (garantindo que estão sempre visíveis)."""
-        self.plotter.add_axes(color="#cbd5e1")
-
-    def adicionar_texto(self, texto: str, **kwargs) -> None:
-        """Adiciona texto à cena (ex: instruções)."""
-        self.plotter.add_text(texto, **kwargs)
-
-    def limpar(self) -> None:
-        """Remove todos os actores da cena."""
-        self.plotter.clear()
-
-    def renderizar(self) -> None:
-        """Força a renderização da cena."""
-        self.plotter.render()
-
-    def repor_camara(self, modo: str, eixo: Optional[str] = None) -> None:
-        """
-        Repõe a câmara para a posição padrão do modo actual.
-
-        :param modo: "superficie" ou "corte".
-        :param eixo: Eixo do corte ("x", "y", "z") – só usado no modo corte.
-        """
-        if modo == "corte":
-            if eixo == "x":
-                self.plotter.view_yz()
-            elif eixo == "y":
-                self.plotter.view_xz()
-            else:  # z
-                self.plotter.view_xy()
-            self.plotter.enable_parallel_projection()
-        else:
-            self.plotter.view_isometric()
-            self.plotter.disable_parallel_projection()
-        self.plotter.reset_camera()
-        self.renderizar()
-
-    def guardar_imagem(self, caminho: str) -> None:
-        """Guarda a cena actual como imagem PNG."""
-        self.plotter.screenshot(caminho, transparent_background=False)
-
-    def obter_posicao_camara(self) -> tuple:
-        """Devolve a posição actual da câmara (para restauro)."""
-        return self.plotter.camera_position
-
-    def definir_posicao_camara(self, posicao: tuple) -> None:
-        """Restaura a posição da câmara."""
-        self.plotter.camera_position = posicao
-
-    def obter_projecao_paralela(self) -> bool:
-        """Devolve True se a projecção paralela estiver activa."""
-        return bool(self.plotter.camera.GetParallelProjection())
-
-    def definir_projecao_paralela(self, activa: bool) -> None:
-        """Activa ou desactiva a projecção paralela."""
-        if activa:
-            self.plotter.enable_parallel_projection()
-        else:
-            self.plotter.disable_parallel_projection()
+        corpo_layout.addWidget(self.navegacao_corte)
+        area_layout.addWidget(corpo_vista, 1)

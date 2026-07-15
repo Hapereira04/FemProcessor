@@ -1,19 +1,9 @@
 """
-user_interface
-==============
-Módulo que contém toda a interface gráfica do simulador TerraMEF.
+Módulo de Interface Gráfica (UI) para o TerraMEF.
+Este pacote contém a arquitetura modular da aplicação PyQt/PySide6,
+separando a lógica de apresentação, visualização 3D e processamento paralelo.
 """
-from .main_window import JanelaMEF, iniciar_interface
-from .result_dataclass import ResultadoMEF
-from .utils import formatar
-from .worker import TrabalhadorCalculo
-from .visualizer import Visualizer3D
 
-__all__ = [
-    "JanelaMEF",
-    "iniciar_interface",
-    "ResultadoMEF",
-    "formatar",
-    "TrabalhadorCalculo",
-    "Visualizer3D",
-]
+from .main_window import iniciar_interface
+
+__all__ = ["iniciar_interface"]

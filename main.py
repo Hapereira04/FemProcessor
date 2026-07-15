@@ -16,7 +16,7 @@ import io_utils
 import fem_solver
 import visualization
 import sys
-from user_interface import iniciar_interface
+from user_interface import iniciar_interface  # ou JanelaMEF
 
 
 def main():
@@ -76,4 +76,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(iniciar_interface())
-    main()

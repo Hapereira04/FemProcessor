@@ -1,33 +1,27 @@
 """
-result_dataclass.py
-===================
-Define a estrutura de dados que transporta os resultados da simulação.
+Estruturas de dados para o armazenamento dos resultados da simulação.
 """
 
-from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Optional
-
 import numpy as np
-
 
 @dataclass
 class ResultadoMEF:
     """
-    Agrupa todos os dados resultantes da simulação de Elementos Finitos.
+    Agrupa todos os resultados numéricos obtidos pelo motor matemático MEF.
 
-    :param nos: Coordenadas dos nós (N×3).
-    :param elementos: Conectividade dos tetraedros (M×4), índices 0‑based.
-    :param potenciais: Potencial eléctrico em cada nó (array N).
-    :param gradientes: Campo eléctrico (gradiente do potencial) em cada elemento (M×3).
-    :param condicoes: Dicionário {índice_do_nó: potencial_fixo_em_Volts}.
-    :param resistencia: Resistência equivalente do sistema (Ohm), ou None.
-    :param matriz_rigidez: Matriz de rigidez global (objecto esparso, ex: CSR).
+    :param nos: Array NumPy (N x 3) com as coordenadas globais da malha.
+    :param elementos: Array NumPy (M x 4) com a conectividade dos tetraedros.
+    :param potenciais: Array NumPy 1D (tamanho N) com a voltagem em cada nó.
+    :param gradientes: Array NumPy (M x 3) com o vetor do Campo Elétrico (Ex, Ey, Ez) por elemento.
+    :param condicoes: Dicionário contendo as voltagens fixas aplicadas {id_no: voltagem}.
+    :param resistencia: Valor em Ohms da resistência equivalente calculada (pode ser None se falhar).
+    :param matriz_rigidez: Objeto da matriz esparsa global gerada pelo SciPy.
     """
     nos: np.ndarray
     elementos: np.ndarray
     potenciais: np.ndarray
     gradientes: np.ndarray
-    condicoes: dict[int, float]
-    resistencia: Optional[float]
-    matriz_rigidez: Any  # scipy.sparse.csr_matrix ou similar
+    condicoes: dict[int, float]  # no, volts
+    resistencia: float | None
+    matriz_rigidez: object

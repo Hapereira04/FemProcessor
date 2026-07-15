@@ -13,9 +13,10 @@ import os
 from typing import Optional, Tuple, List, Dict, Any
 
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
 from pyvistaqt import QtInteractor
+import pyvista as pv
 
 # Importação do módulo de visualização do projecto (para preparar a malha VTK)
 import visualization as vis_lib
@@ -27,6 +28,9 @@ class Visualizer3D(QWidget):
 
     :param parent: Widget pai (normalmente a janela principal).
     """
+
+    # Sinal emitido quando o utilizador pede para repor a câmara
+    repor_camara_clicked = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -63,7 +67,7 @@ class Visualizer3D(QWidget):
         cabecalho_layout.addWidget(self.mensagem_topo, 1)
 
         self.botao_repor = QPushButton("Repor câmara")
-        self.botao_repor.clicked.connect(self.repor_camara)
+        self.botao_repor.clicked.connect(self.repor_camara_clicked.emit)
         cabecalho_layout.addWidget(self.botao_repor)
 
         layout.addWidget(cabecalho)
@@ -246,21 +250,16 @@ class Visualizer3D(QWidget):
         if mostrar_mensagem:
             self.mensagem_topo.setText("Câmara reposta.")
 
-    def guardar_imagem(self) -> None:
+    def guardar_imagem(self, caminho: str) -> None:
         """
-        Abre um diálogo para guardar a imagem actual em PNG.
+        Guarda a imagem actual num ficheiro PNG.
+
+        :param caminho: Caminho completo para o ficheiro de saída.
         """
         if self.malha is None:
             return
-        destino, _ = QFileDialog.getSaveFileName(
-            self,
-            "Guardar imagem",
-            "resultado_mef.png",
-            "Imagem PNG (*.png)"
-        )
-        if destino:
-            self.plotter.screenshot(destino, transparent_background=False)
-            self.mensagem_topo.setText(f"Imagem guardada: {os.path.basename(destino)}")
+        self.plotter.screenshot(caminho, transparent_background=False)
+        self.mensagem_topo.setText(f"Imagem guardada: {os.path.basename(caminho)}")
 
     # ------------------------------------------------------------------
     # Métodos auxiliares
@@ -316,3 +315,20 @@ class Visualizer3D(QWidget):
             self.titulo_vista.setText("Corte interativo")
         else:
             self.titulo_vista.setText("Vista 3D do potencial")
+
+    # ------------------------------------------------------------------
+    # Metodo para criar malha VTK a partir de dados NumPy
+    # ------------------------------------------------------------------
+    def criar_malha_vtk(self, nos: np.ndarray, elementos: np.ndarray) -> pv.UnstructuredGrid:
+        """
+        Cria uma malha VTK (UnstructuredGrid) a partir dos nós e elementos.
+
+        :param nos: Coordenadas dos nós (N×3).
+        :param elementos: Conectividade dos tetraedros (M×4), índices 0‑based.
+        :return: pyvista.UnstructuredGrid.
+        """
+        # Converte para o formato esperado pelo pyvista:
+        # array (M, 5) onde o primeiro elemento de cada linha é o número de vértices (4)
+        cells = np.hstack([np.full((len(elementos), 1), 4, dtype=int), elementos]).flatten()
+        malha = pv.UnstructuredGrid({pv.CellType.TETRA: cells}, nos)
+        return malha

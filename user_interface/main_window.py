@@ -10,6 +10,10 @@ import os
 import sys
 from typing import Optional
 
+import numpy as np
+import scipy.sparse as sparse
+from scipy.io import mmwrite
+
 from PySide6.QtCore import QThread, Qt, Slot
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
@@ -35,15 +39,12 @@ class JanelaMEF(QMainWindow):
         self.setWindowTitle("TerraMEF | Simulador de aterramento")
         self.resize(1420, 860)
 
-        # Estado da simulação
         self.resultado: Optional[ResultadoMEF] = None
         self.malha = None
 
-        # Thread de cálculo
         self.thread: Optional[QThread] = None
         self.trabalhador: Optional[TrabalhadorCalculo] = None
 
-        # Atalhos
         self.atalhos: list[QShortcut] = []
 
         self.setStyleSheet(STYLESHEET)
@@ -58,7 +59,6 @@ class JanelaMEF(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # Sidebar com scroll
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -76,11 +76,9 @@ class JanelaMEF(QMainWindow):
         sidebar_layout.addWidget(scroll)
         layout.addWidget(sidebar_frame)
 
-        # Visualizador 3D
         self.visualizer = Visualizer3D()
         layout.addWidget(self.visualizer, 1)
 
-        # Ligações
         self.sidebar.calcular_clicked.connect(self.calcular)
         self.sidebar.modo_alterado.connect(self._definir_modo)
         self.sidebar.eixo_alterado.connect(self._definir_eixo)
@@ -181,7 +179,6 @@ class JanelaMEF(QMainWindow):
         limites = self._obter_limites_corte(self.visualizer.eixo_corte)
         self.sidebar.definir_limites_corte(*limites)
 
-        # Atualizar indicadores
         delta_v = max(resultado.condicoes.values()) - min(resultado.condicoes.values())
         corrente = delta_v / resultado.resistencia if resultado.resistencia else None
         self.sidebar.atualizar_indicadores(
@@ -237,6 +234,7 @@ class JanelaMEF(QMainWindow):
         valor = max(0, min(1000, valor))
         self.sidebar.slider_corte.setValue(valor)
 
+    # ---- Exportação de imagem ----
     def _guardar_imagem(self) -> None:
         if self.malha is None:
             return
@@ -247,7 +245,56 @@ class JanelaMEF(QMainWindow):
             self.visualizer.guardar_imagem(destino)
             self.mostrar_mensagem(f"Imagem guardada: {os.path.basename(destino)}")
 
-    # ---- Barra de exportação ----
+    # ---- Exportação da matriz de rigidez ----
+    def _exportar_matriz_npz(self) -> None:
+        if not self._confirmar_resultado():
+            return
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar matriz de rigidez (NPZ)", "matriz_rigidez.npz", "NPZ (*.npz)"
+        )
+        if destino:
+            destino = self._garantir_extensao(destino, ".npz")
+            sparse.save_npz(destino, self.resultado.matriz_rigidez)
+            self.mostrar_mensagem(f"Matriz exportada: {os.path.basename(destino)}")
+
+    def _exportar_matriz_mtx(self) -> None:
+        if not self._confirmar_resultado():
+            return
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar matriz de rigidez (Matrix Market)", "matriz_rigidez.mtx", "Matrix Market (*.mtx)"
+        )
+        if destino:
+            destino = self._garantir_extensao(destino, ".mtx")
+            mmwrite(destino, self.resultado.matriz_rigidez)
+            self.mostrar_mensagem(f"Matriz exportada: {os.path.basename(destino)}")
+
+    def _exportar_matriz_txt(self) -> None:
+        if not self._confirmar_resultado():
+            return
+        destino, _ = QFileDialog.getSaveFileName(
+            self, "Exportar matriz de rigidez (texto)", "matriz_rigidez.txt", "Texto (*.txt)"
+        )
+        if destino:
+            destino = self._garantir_extensao(destino, ".txt")
+            matriz_coo = self.resultado.matriz_rigidez.tocoo()
+            dados = np.column_stack((matriz_coo.row, matriz_coo.col, matriz_coo.data))
+            np.savetxt(destino, dados, delimiter="\t", header="linha\tcoluna\tvalor", comments="", fmt=["%d", "%d", "%.12g"])
+            self.mostrar_mensagem(f"Matriz exportada: {os.path.basename(destino)}")
+
+    # ---- Métodos auxiliares para exportação ----
+    def _confirmar_resultado(self) -> bool:
+        if self.resultado is None:
+            QMessageBox.information(self, "Sem resultado", "Calcule primeiro a simulação.")
+            return False
+        return True
+
+    @staticmethod
+    def _garantir_extensao(caminho: str, extensao: str) -> str:
+        if not caminho.lower().endswith(extensao):
+            return caminho + extensao
+        return caminho
+
+    # ---- Barra de exportação (atualizada) ----
     def _criar_barra_exportacao(self) -> None:
         barra = self.menuBar()
         barra.setNativeMenuBar(False)
@@ -259,9 +306,9 @@ class JanelaMEF(QMainWindow):
         menu.addSeparator()
 
         sub_rigidez = menu.addMenu("Matriz de rigidez")
-        sub_rigidez.addAction("NPZ esparso (.npz)...", self._exportar_matriz)
-        sub_rigidez.addAction("Matrix Market (.mtx)...", self._exportar_matriz)
-        sub_rigidez.addAction("Texto tabulado (.txt)...", self._exportar_matriz)
+        sub_rigidez.addAction("NPZ esparso (.npz)...", self._exportar_matriz_npz)
+        sub_rigidez.addAction("Matrix Market (.mtx)...", self._exportar_matriz_mtx)
+        sub_rigidez.addAction("Texto tabulado (.txt)...", self._exportar_matriz_txt)
 
         sub_pot = menu.addMenu("Potenciais por nó")
         sub_pot.addAction("CSV (.csv)...", self._exportar_potenciais)
@@ -280,11 +327,9 @@ class JanelaMEF(QMainWindow):
 
         barra.addMenu(menu)
 
-    # ---- Exportações (placeholders a serem implementados nos próximos commits) ----
+    # ---- Placeholders para os próximos commits ----
     def _exportar_excel(self) -> None:
         QMessageBox.information(self, "Exportar Excel", "Funcionalidade em desenvolvimento.")
-    def _exportar_matriz(self) -> None:
-        QMessageBox.information(self, "Exportar Matriz", "Funcionalidade em desenvolvimento.")
     def _exportar_potenciais(self) -> None:
         QMessageBox.information(self, "Exportar Potenciais", "Funcionalidade em desenvolvimento.")
     def _exportar_campo(self) -> None:

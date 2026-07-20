@@ -8,7 +8,7 @@ e uma ou mais varas cilíndricas. Gera os ficheiros `pontos.txt` e
 `elementos.txt` no formato esperado pelo simulador MEF (io_utils).
 
 O script:
-    1. Define os parâmetros da simulação (dimensões, condutividade, potencial).
+    1. Define os parâmetros da simulação (dimensões, resistividade, potencial).
     2. Constrói a geometria (caixa + cilindros) e subtrai as varas.
     3. Gera uma malha de tetraedros com refinamento local.
     4. Extrai os nós e elementos, reconstruindo índices locais.
@@ -28,7 +28,7 @@ def gerar_malha_avancada(pasta: str = ".") -> None:
     Os parâmetros da simulação são definidos internamente (podem ser
     alterados directamente no código). A função cria:
         - pontos.txt: cada linha com "x y z potencial"
-        - elementos.txt: cada linha com "n0 n1 n2 n3 condutividade"
+        - elementos.txt: cada linha com "n0 n1 n2 n3 resistividade"
 
     :param pasta: Diretório onde serão criados os ficheiros (por omissão, o atual).
     :return: None (apenas grava ficheiros e imprime diagnóstico).
@@ -41,7 +41,7 @@ def gerar_malha_avancada(pasta: str = ".") -> None:
     L_terra = 60.0               # Largura/comprimento da caixa de terra (m)
     prof_terra = 40.0            # Profundidade da caixa de terra (m)
     V_vara = 1000000.0           # Potencial aplicado à vara (V)
-    Condutividade_Terra = 0.001  # Condutividade do solo (S/m)
+    Resistividade_Terra = 1000.0 # Resistividade do solo (Ohm.m) - (Equivalente a 0.001 S/m)
 
     print("A iniciar o motor Gmsh...")
     gmsh.initialize()
@@ -170,10 +170,10 @@ def gerar_malha_avancada(pasta: str = ".") -> None:
 
             f_nos.write(f"{x:.6f} {y:.6f} {z:.6f} {potencial:.1f}\n")
 
-    # Grava elementos.txt: cada linha com "n0 n1 n2 n3 condutividade"
+    # Grava elementos.txt: cada linha com "n0 n1 n2 n3 resistividade"
     with open(os.path.join(pasta_ficheiros, "elementos.txt"), "w") as f_elem:
         for el in elementos:
-            f_elem.write(f"{el[0]} {el[1]} {el[2]} {el[3]} {Condutividade_Terra:.6f}\n")
+            f_elem.write(f"{el[0]} {el[1]} {el[2]} {el[3]} {Resistividade_Terra:.6f}\n")
 
     # Finaliza o Gmsh
     gmsh.finalize()

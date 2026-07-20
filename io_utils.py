@@ -56,21 +56,21 @@ def ler_nos_e_condicoes(caminho_ficheiro):
 
 def ler_elementos_finais(caminho_ficheiro):
     """
-    Lê a conectividade dos tetraedros e a condutividade do material.
+    Lê a conectividade dos tetraedros e a resistividade do material.
 
     Formato esperado no ficheiro de texto:
-    n0 n1 n2 n3 condutividade
+    n0 n1 n2 n3 resistividade
 
     :param caminho_ficheiro: String contendo o caminho ou o nome do ficheiro de
                              texto a ser lido (exemplo: "elementos.txt").
 
     :return Matriz_Elementos: Array NumPy de inteiros (tamanho M x 4) onde cada linha
                               contém os índices dos 4 nós que compõem um tetraedro.
-    :return Lista_Condutividades: Array NumPy 1D (tamanho M) contendo o valor da
-                                  condutividade elétrica para cada tetraedro lido.
+    :return Lista_Resistividades: Array NumPy 1D (tamanho M) contendo o valor da
+                                  resistividade elétrica para cada tetraedro lido.
     """
     Matriz_Elementos = []
-    Lista_Condutividades = []
+    Lista_Resistividades = []
 
     with open(caminho_ficheiro, 'r') as ficheiro_aberto:
         for linha_texto in ficheiro_aberto:
@@ -86,18 +86,18 @@ def ler_elementos_finais(caminho_ficheiro):
                     Matriz_Elementos.append(nos_do_tetraedro)
 
                     # A 5ª coluna é a propriedade do material
-                    valor_condutividade = valores_linha[4]
-                    Lista_Condutividades.append(valor_condutividade)
+                    valor_resistividade = valores_linha[4]
+                    Lista_Resistividades.append(valor_resistividade)
 
     elementos = np.array(Matriz_Elementos, dtype=int)
-    condutividades = np.array(Lista_Condutividades, dtype=float)
+    resistividades = np.array(Lista_Resistividades, dtype=float)
 
     if len(elementos) == 0:
         raise ValueError("O ficheiro de elementos nao contem tetraedros validos.")
-    if np.any(condutividades <= 0):
-        raise ValueError("A condutividade de cada elemento deve ser positiva.")
+    if np.any(resistividades <= 0):
+        raise ValueError("A resistividade de cada elemento deve ser positiva e maior que zero.")
 
-    return elementos, condutividades
+    return elementos, resistividades
 
 
 def reparar_malha_desconectada(Matriz_Nos, Matriz_Elementos, Condicoes_Fronteira):

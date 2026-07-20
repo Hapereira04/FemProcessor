@@ -90,7 +90,7 @@ def matriz_local_tetraedro(Coordenadas_Elemento, Condutividade=1.0):
     return Matriz_Rigidez_Local
 
 
-def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
+def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Resistividades):
     """
     Monta a Matriz Global de Rigidez utilizando o formato esparso (COO -> CSR).
     Distribui os valores locais de cada tetraedro para as posições globais da peça.
@@ -99,8 +99,8 @@ def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
                        de todos os nós globais da malha.
     :param Matriz_Elementos: Array NumPy (M x 4) de inteiros, onde cada linha contém
                              os índices dos 4 nós que formam um tetraedro.
-    :param Lista_Condutividades: Array NumPy (1D, tamanho M) contendo o valor da
-                                 condutividade do material para cada tetraedro.
+    :param Lista_Resistividades: Array NumPy (1D, tamanho M) contendo o valor da
+                                 resistividade do material para cada tetraedro.
 
     :return: Matriz_Global_CSR, uma matriz esparsa do SciPy (formato CSR) de tamanho
              (N x N), pronta para receber as condições de fronteira e ser resolvida.
@@ -123,10 +123,10 @@ def montar_matriz_global(Matriz_Nos, Matriz_Elementos, Lista_Condutividades):
 
         # Extrair as coordenadas e o material exclusivamente para este tetraedro
         Coordenadas_Elemento = Matriz_Nos[nos_do_tetraedro]
-        Condutividade_Elemento = Lista_Condutividades[index_elemento]
+        Resistividade_Elemento = Lista_Resistividades[index_elemento]
 
         # Obter a matriz 4x4 da função que limpámos no passo anterior
-        Matriz_Rigidez_Local = matriz_local_tetraedro(Coordenadas_Elemento, Condutividade=Condutividade_Elemento)
+        Matriz_Rigidez_Local = matriz_local_tetraedro(Coordenadas_Elemento, Resistividade_Elemento)
 
         # 3. Mapeamento Local -> Global (Distribuir os 16 valores)
         for linha_local in range(4):

@@ -36,14 +36,14 @@ def main():
     # 1. Leitura (Delega para io_utils)
     print("A ler geometria e materiais...")
     nos, condicoes = io_utils.ler_nos_e_condicoes(ficheiro_pontos)
-    elementos, condutividades = io_utils.ler_elementos_finais(ficheiro_elementos)
+    elementos, resistividades = io_utils.ler_elementos_finais(ficheiro_elementos)
 
     # NOVO: Repara a malha estragada do Gmsh colando a vara ao solo!
     nos, elementos, condicoes = io_utils.reparar_malha_desconectada(nos, elementos, condicoes)
 
     # 2. Resolução Matemática (Delega para fem_solver)
     print("A montar matriz global de rigidez...")
-    S = fem_solver.montar_matriz_global(nos, elementos, condutividades)
+    S = fem_solver.montar_matriz_global(nos, elementos, resistividades)
 
     print("A calcular campo elétrico e potenciais...")
     potenciais, resistencia = fem_solver.aplicar_condicoes_eliminacao(S, condicoes)

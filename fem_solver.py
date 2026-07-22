@@ -37,13 +37,13 @@ import scipy.sparse as sparse
 import scipy.sparse.linalg as spla
 import numpy as np
 
-def matriz_local_tetraedro(Coordenadas_Elemento, Condutividade=1.0):
+def matriz_local_tetraedro(Coordenadas_Elemento, Resistividade):
     """
     Calcula a Matriz de Condutividade (Rigidez) local de um tetraedro linear (4 nós).
 
     :param Coordenadas_Elemento: Array NumPy ou lista (tamanho 4x3) contendo as
                                  coordenadas espaciais (x, y, z) dos 4 nós do tetraedro.
-    :param Condutividade: Valor (float) correspondente à condutividade do material
+    :param Resistividade: Valor (float) correspondente à Resistividade do material
                           específico deste tetraedro (Padrão = 1.0).
 
     :return: Matriz_Rigidez_Local, um Array NumPy (4x4) representando a contribuição
@@ -75,6 +75,8 @@ def matriz_local_tetraedro(Coordenadas_Elemento, Condutividade=1.0):
 
     if Volume_Tetraedro < 1e-12:
         raise ValueError("Volume zero ou negativo detetado. Verifique a qualidade da malha.")
+
+    Condutividade = 1.0 / Resistividade
 
     # 4. Construção da Matriz de Rigidez Local (4x4)
     Matriz_Rigidez_Local = np.zeros((4, 4))

@@ -42,7 +42,7 @@ class TrabalhadorCalculo(QObject):
 
             # Leitura e reparação de dados
             nos, condicoes = io_utils.ler_nos_e_condicoes(self.ficheiro_pontos)
-            elementos, condutividades = io_utils.ler_elementos_finais(self.ficheiro_elementos)
+            elementos, resistividades = io_utils.ler_elementos_finais(self.ficheiro_elementos)
             nos, elementos, condicoes = io_utils.reparar_malha_desconectada(nos, elementos, condicoes)
 
             # Validações de sanidade
@@ -54,7 +54,7 @@ class TrabalhadorCalculo(QObject):
             self.estado.emit("A montar a matriz global...")
 
             # Cria a matriz de condutividade global (CSR Sparse Matrix)
-            matriz = fem_solver.montar_matriz_global(nos, elementos, condutividades)
+            matriz = fem_solver.montar_matriz_global(nos, elementos, resistividades)
 
             self.estado.emit("A resolver potenciais e campo eletrico...")
 

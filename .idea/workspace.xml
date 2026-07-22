@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Revisão, correção e documentação de todos os ficheiros da user_interface&#10;&#10;- Refatoração completa concluída: código monolítico dividido com sucesso em módulos dedicados (main_window, sidebar, viewer, visualizer, worker, utils, styles, result_dataclass).&#10;- Correção das dependências e referências cruzadas entre todos os módulos (ex: correção de chamadas de atributos entre a janela principal e os widgets filhos).&#10;- Restabelecimento de todos os sinais (Signals/Slots) do PySide6 para garantir o funcionamento correto dos eventos e multithreading.&#10;- Adição de docstrings detalhadas (com params e returns) e comentários explicativos em 100% dos ficheiros do pacote user_interface.">
+    <list default="true" id="b1100385-a2c7-4039-aa8c-d89ffca3fc9f" name="Changes" comment="Transição de condutividade para resistividade no motor MEF&#10;&#10;Atualização transversal do motor de cálculo e gerador de malhas para processar a propriedade dos materiais como Resistividade (Ohm.m) em vez de Condutividade (S/m). Esta alteração aproxima o software dos dados físicos habitualmente fornecidos em engenharia. A conversão matemática (condutividade = 1 / resistividade) passa a ser tratada nativamente durante a construção matricial.&#10;&#10;Ficheiros alterados:&#10;- io_utils.py: Atualização das docstrings, variáveis e validação de exceções para garantir que a 5ª coluna é lida como resistividade (&gt; 0).&#10;- fem_solver.py: Refatoração da rotina matriz_local_tetraedro para receber a resistividade e convertê-la antes de integrar a matriz de rigidez local e global.&#10;- gerar_malha.py: Substituição da variável Condutividade_Terra (0.001) pela Resistividade_Terra (1000.0) e atualização da exportação para o ficheiro elementos.txt.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fem_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/fem_solver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/io_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/io_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_interface/worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_interface/worker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +54,7 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Python.fem_solver.executor": "Run",
+    "Python.gerar_malha.executor": "Run",
     "Python.main.executor": "Run",
     "Python.teste_memoria.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -346,7 +348,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784074527077</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Transição de condutividade para resistividade no motor MEF&#10;&#10;Atualização transversal do motor de cálculo e gerador de malhas para processar a propriedade dos materiais como Resistividade (Ohm.m) em vez de Condutividade (S/m). Esta alteração aproxima o software dos dados físicos habitualmente fornecidos em engenharia. A conversão matemática (condutividade = 1 / resistividade) passa a ser tratada nativamente durante a construção matricial.&#10;&#10;Ficheiros alterados:&#10;- io_utils.py: Atualização das docstrings, variáveis e validação de exceções para garantir que a 5ª coluna é lida como resistividade (&gt; 0).&#10;- fem_solver.py: Refatoração da rotina matriz_local_tetraedro para receber a resistividade e convertê-la antes de integrar a matriz de rigidez local e global.&#10;- gerar_malha.py: Substituição da variável Condutividade_Terra (0.001) pela Resistividade_Terra (1000.0) e atualização da exportação para o ficheiro elementos.txt.">
+      <option name="closed" value="true" />
+      <created>1784545579938</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1784545579938</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -373,7 +383,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="calculo do gradiente e do campo eletrico vetorial&#10;Substituicao do pass na funcao 'gradiente_por_elemento'. Implementacao da derivada espacial do potencial eletrico para cada tetraedro, extraindo o vetor tridimensional do campo eletrico (Ex, Ey, Ez) atraves da matriz Jacobiana inversa. Modulo fem_solver integralmente concluido, com suporte a resistencias e campos eletricos." />
     <MESSAGE value="conversao vtk e renderizacao 3d do mapa de potenciais&#10;Implementacao das funcoes 'preparar_malha_vtk' e 'visualizar_resultados_3d'. Adicionada a logica de traducao de arrays NumPy para grelhas nao estruturadas (UnstructuredGrid) do motor VTK (codigo 10 para tetraedros). Criacao da janela base de renderizacao com o mapa de cores (cmap='jet') para analise global das tensoes eletricas no solo." />
     <MESSAGE value="implementacao do painel interativo de pos-processamento 3D&#10;Substituicao do placeholder em 'visualizar_corte_interativo' pelo modulo avancado PyVista. Adicionadas as rotinas de extracao de curvas equipotenciais (isosurfaces), glifos vetoriais (setas de campo eletrico) e os atalhos de teclado (key events) para controlo total da camara e do plano de corte dinâmico. Inclusao do HUD com instrucoes no ecra e funcao de screenshot para relatorios." />
     <MESSAGE value="Aadicionar script base para teste de memória (teste_memoria.py)&#10;&#10;Cria o ficheiro `teste_memoria.py` com a definição da função&#10;`executar_teste_memoria` e a chamada para três tamanhos de malha&#10;(5k, 10k, 30k). Ainda não contém a lógica de alocação." />
@@ -398,6 +407,7 @@
     <MESSAGE value="Adicionar indicadores de resultado na sidebar&#10;&#10;- Adiciona quatro QLabel na sidebar para mostrar:&#10;  - Resistência (ohm)&#10;  - Corrente (A)&#10;  - Número de nós&#10;  - Número de elementos&#10;- Os indicadores são atualizados após o cálculo através do método `_atualizar_indicadores`.&#10;- Inicialmente mostram &quot;--&quot;.&#10;- Utiliza a função formatar() para apresentar valores com prefixos métricos.&#10;- Adiciona docstrings e type hints nos novos métodos." />
     <MESSAGE value="Implementar exportação de imagem e matriz de rigidez&#10;&#10;- Exportação de imagem já existente (PNG).&#10;- Implementa exportação da matriz de rigidez em três formatos:&#10;  - NPZ esparso (scipy.sparse.save_npz)&#10;  - Matrix Market (scipy.io.mmwrite)&#10;  - Texto tabulado (COO: linha, coluna, valor)&#10;- Adiciona método auxiliar `_garantir_extensao` para adicionar extensão se faltar.&#10;- Substitui placeholders pelos métodos reais.&#10;- Adiciona docstrings e tratamento de erros." />
     <MESSAGE value="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais." />
-    <option name="LAST_COMMIT_MESSAGE" value="Implementar exportação de potenciais, campo elétrico e elementos&#10;&#10;- Exportação de potenciais por nó: CSV, TXT e TSV (com cabeçalhos).&#10;- Exportação do campo elétrico por elemento: CSV, TXT e TSV (coordenadas do centro + componentes).&#10;- Exportação da conectividade dos elementos: CSV, TXT e TSV.&#10;- Utiliza np.savetxt com delimitadores apropriados.&#10;- Adiciona método auxiliar `_detalhes_formato` para mapear formato para extensão, filtro e delimitador.&#10;- Substitui placeholders pelos métodos reais." />
+    <MESSAGE value="Transição de condutividade para resistividade no motor MEF&#10;&#10;Atualização transversal do motor de cálculo e gerador de malhas para processar a propriedade dos materiais como Resistividade (Ohm.m) em vez de Condutividade (S/m). Esta alteração aproxima o software dos dados físicos habitualmente fornecidos em engenharia. A conversão matemática (condutividade = 1 / resistividade) passa a ser tratada nativamente durante a construção matricial.&#10;&#10;Ficheiros alterados:&#10;- io_utils.py: Atualização das docstrings, variáveis e validação de exceções para garantir que a 5ª coluna é lida como resistividade (&gt; 0).&#10;- fem_solver.py: Refatoração da rotina matriz_local_tetraedro para receber a resistividade e convertê-la antes de integrar a matriz de rigidez local e global.&#10;- gerar_malha.py: Substituição da variável Condutividade_Terra (0.001) pela Resistividade_Terra (1000.0) e atualização da exportação para o ficheiro elementos.txt." />
+    <option name="LAST_COMMIT_MESSAGE" value="Transição de condutividade para resistividade no motor MEF&#10;&#10;Atualização transversal do motor de cálculo e gerador de malhas para processar a propriedade dos materiais como Resistividade (Ohm.m) em vez de Condutividade (S/m). Esta alteração aproxima o software dos dados físicos habitualmente fornecidos em engenharia. A conversão matemática (condutividade = 1 / resistividade) passa a ser tratada nativamente durante a construção matricial.&#10;&#10;Ficheiros alterados:&#10;- io_utils.py: Atualização das docstrings, variáveis e validação de exceções para garantir que a 5ª coluna é lida como resistividade (&gt; 0).&#10;- fem_solver.py: Refatoração da rotina matriz_local_tetraedro para receber a resistividade e convertê-la antes de integrar a matriz de rigidez local e global.&#10;- gerar_malha.py: Substituição da variável Condutividade_Terra (0.001) pela Resistividade_Terra (1000.0) e atualização da exportação para o ficheiro elementos.txt." />
   </component>
 </project>
